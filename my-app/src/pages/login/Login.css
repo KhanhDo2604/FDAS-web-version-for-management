@@ -3,6 +3,7 @@
   align-items: center;
   justify-content: center;
   min-height: 100vh;
+  overflow: hidden;
 }
 
 .screen {
@@ -114,7 +115,7 @@
   border-radius: 26px;
   border: 1px solid #d4d3e8;
   text-transform: uppercase;
-  font-weight: 700;
+  font-weight: bold;
   display: flex;
   align-items: center;
   width: 100%;

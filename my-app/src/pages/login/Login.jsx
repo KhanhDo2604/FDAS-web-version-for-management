@@ -3,6 +3,7 @@ import "../login/Login.css"
 import { BiSolidUser } from "react-icons/bi"
 import { RiLockPasswordFill } from "react-icons/ri"
 import { AiOutlineInstagram, AiFillFacebook, AiOutlineTwitter } from "react-icons/ai"
+import { MdArrowForwardIos } from "react-icons/md"
 
 const Login = () => {
     return (
@@ -12,15 +13,15 @@ const Login = () => {
                     <form className="login">
                         <div className="login__field">
                             <BiSolidUser className='login__icon' />
-                            <input type="text" className="login__input" placeholder="User name / Email" />
+                            <input type="text" className="login__input" placeholder="Email" />
                         </div>
-                        <div class="login__field">
+                        <div className="login__field">
                             <RiLockPasswordFill className='login__icon' />
                             <input type="password" className="login__input" placeholder="Password" />
                         </div>
                         <button className="button login__submit">
                             <span className="button__text">Log In Now</span>
-                            <i className="button__icon fas fa-chevron-right"></i>
+                            <MdArrowForwardIos className='button__icon' />
                         </button>
                     </form>
                     <div className="social-login">

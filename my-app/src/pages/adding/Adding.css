@@ -1,0 +1,113 @@
+.add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.add .screen {
+  background: white;
+  position: relative;
+  height: 600px;
+  width: 360px;
+  border-radius: 12px;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+
+.add .screen__content .adding__image {
+  display: flex;
+  justify-content: center;
+  padding-top: 28px;
+}
+
+.add .screen__content .adding__image img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+}
+
+.add .screen__content .adding__upload {
+  background-color: #fffff0;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  border: 2px dotted;
+  border-color: #5d54a4;
+}
+
+.add .screen__content .adding__upload span {
+  font-size: 14px;
+  font-weight: 600;
+  color: #5d54a4;
+}
+
+.add .screen__content .adding__image input {
+  display: none;
+}
+
+.add .screen__content .adding__phonenumber,
+.add .screen__content .adding__gender,
+.add .screen__content .adding__email,
+.add .screen__content .adding__fullname,
+.add .screen__content .adding__position {
+  padding: 12px;
+}
+
+.add .screen__content .adding__phonenumber label,
+.add .screen__content .adding__gender label,
+.add .screen__content .adding__email label,
+.add .screen__content .adding__fullname label,
+.add .screen__content .adding__position label {
+  font-weight: bold;
+  color: #6a679e;
+}
+
+.add .screen__content .adding__phonenumber input,
+.add .screen__content .adding__gender select,
+.add .screen__content .adding__email input,
+.add .screen__content .adding__fullname input,
+.add .screen__content .adding__position select {
+  margin-top: 8px;
+  width: 100%;
+  padding: 4px;
+  border: 1.5px solid;
+  border-color: #5d54a4;
+  border-radius: 6px;
+  color: #6a679e;
+  font-size: 14px;
+  outline: none;
+}
+
+.add .screen__content .adding__phonenumber input:focus,
+.add .screen__content .adding__gender select:focus,
+.add .screen__content .adding__email input:focus,
+.add .screen__content .adding__position select:focus,
+.add .screen__content .adding__fullname input:focus {
+  border: 2px solid;
+  border-color: #5d54a4;
+}
+
+.add .screen__content .submit__form {
+  margin-top: 16px;
+  text-align: center;
+}
+
+.add .screen__content .submit__form button {
+  padding: 8px 24px;
+  outline: none;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 10px;
+  color: #6a679e;
+  border: 1px solid;
+  border-color: #5d54a4;
+  background-color: #fffff0;
+  cursor: pointer;
+}
