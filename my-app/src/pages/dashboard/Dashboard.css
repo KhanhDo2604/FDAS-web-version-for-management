@@ -1,0 +1,81 @@
+.dashboard {
+  display: flex;
+}
+
+.dashboard .sidebar {
+  width: 300px;
+  background-color: #1e85f1;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding-left: 26px;
+}
+
+.dashboard .sidebar .menu-item {
+  font-weight: bold;
+  font-size: 24px;
+  width: 100%;
+  text-align: center;
+  padding: 13px 0;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 29px;
+  border-top-left-radius: 20px;
+  border-bottom-left-radius: 20px;
+}
+
+.dashboard .sidebar .icon {
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  width: 30%;
+}
+
+.dashboard .sidebar span {
+  display: flex;
+  justify-content: start;
+  width: 70%;
+}
+
+.tab-active {
+  color: #1e85f1;
+  background-color: #fff;
+}
+
+.tab-inactive {
+  color: #fff;
+}
+
+.dashboard .header {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.dashboard .header .border-shadow {
+  width: 100%;
+  height: 2px;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+.dashboard .header .navbar {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px;
+}
+
+.dashboard .header .avatar {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.dashboard .content {
+  padding: 20px;
+}
