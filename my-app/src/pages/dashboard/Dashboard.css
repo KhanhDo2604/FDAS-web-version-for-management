@@ -8,7 +8,7 @@
   color: white;
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  /* height: 100vh; */
   align-items: center;
   justify-content: center;
   gap: 20px;
@@ -77,5 +77,68 @@
 }
 
 .dashboard .content {
+  display: flex;
+  justify-content: space-between;
   padding: 20px;
+}
+
+.dashboard .content span {
+  opacity: 0.5;
+}
+
+progress {
+  border-radius: 10px;
+  height: 8px;
+}
+
+progress::-webkit-progress-bar {
+  background-color: #d9d9d980;
+  border-radius: 10px;
+}
+
+.present progress::-webkit-progress-value {
+  background-color: #f9d410;
+  border-radius: 10px;
+}
+
+.present progress::-moz-progress-bar {
+  background-color: #f9d410;
+
+  border-radius: 10px;
+}
+
+.absent progress::-webkit-progress-value {
+  background-color: #e4644b;
+  border-radius: 10px;
+}
+
+.absent progress::-moz-progress-bar {
+  background-color: #e4644b;
+  border-radius: 10px;
+}
+
+.dashboard ul {
+  display: flex;
+  gap: 28px;
+  align-items: center;
+  list-style: none;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.dashboard ul li {
+  background-color: #ededed;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.dashboard ul li:active {
+  background-color: #000;
+  color: #fff;
+}
+
+.highlighted-text {
+  background-color: #1e85f1;
+  color: #fff;
 }

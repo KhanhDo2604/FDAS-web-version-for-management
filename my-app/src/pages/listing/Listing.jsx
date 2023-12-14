@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import "../listing/Listing.css"
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+// import DatePicker from "react-datepicker";
+// import "react-datepicker/dist/react-datepicker.css";
 import ReactPaginate from 'react-paginate';
 
 const data = [
@@ -163,10 +163,10 @@ const Listing = () => {
         <div className='list'>
             <div className='list__filter'>
                 <input placeholder='Search name of staff' />
-                <DatePicker
+                {/* <DatePicker
                     selected={startDate}
                     onChange={(date) => setStartDate(date)}
-                />
+                /> */}
             </div>
             <div>
                 <div className='list__container'>
