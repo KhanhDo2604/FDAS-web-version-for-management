@@ -29,6 +29,10 @@ function App() {
           path='/dashboard'
           element={<Dashboard />}
         />
+        <Route
+          path='/manageinfo'
+          element={<ManageInfo />}
+        />
       </Routes>
     </BrowserRouter>
   );
