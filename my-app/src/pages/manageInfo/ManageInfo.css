@@ -1,0 +1,182 @@
+.manage-info {
+    display: flex;
+    padding: 25px;
+    gap: 40px;
+
+}
+
+.manage-info .manage-info__left {
+    width: 40%;
+}
+
+.manage-info .left__individual {
+    padding: 20px;
+    box-shadow: 1px 2px 9px #bababa;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.left__individual .individual-status {
+    text-align: right;
+}
+
+.left__individual .individual-status p {
+    display: inline-block;
+}
+
+.status-ontime {
+    border: 1px solid #00d000;
+    color: #00d000;
+    font-weight: 600;
+    padding: 3px 17px;
+    border-radius: 20px;
+    font-size: 13px;
+    background-color: #d7ffd7;
+}
+
+.status-absent {
+    border: 1px solid #8d8d8d;
+    color: #8d8d8d;
+    font-weight: 600;
+    padding: 3px 17px;
+    border-radius: 20px;
+    font-size: 13px;
+    background-color: #e2e5e2;
+}
+
+.manage-info__left .individual-edit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.manage-info__left .individual-edit .edit-avt {
+    width: 100px;
+    height: 100px;
+    border: 1px solid #cacaca;
+}
+
+.manage-info__left .individual-edit .edit-name {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.manage-info__left .individual-edit .edit-role {
+    font-size: 16px;
+}
+
+.manage-info__left .individual-edit .edit-btn {
+    background-color: #f1f1f1;
+    padding: 4px 30px;
+}
+
+.manage-info__left .edit__container-avt {
+    border: 1px solid #333;
+    background-color: #efefef;
+    border-radius: 50%;
+    width: 150px;
+}
+
+.manage-info .individual-detail {
+
+}
+
+.manage-info .individual-detail .detail-container {
+    display: flex;
+    gap: 5px;
+    padding: 0px 15px;
+}
+
+.manage-info .individual-detail .detail-container:not(:last-child) {
+    margin-bottom: 15px;
+}
+
+.manage-info .left__notice {
+    padding: 20px;
+    border-radius: 5px;
+    border: 1px solid #333;
+}
+
+.manage-info .left__notice .left__notice-title {
+    text-align: center;
+    font-weight: 600;
+    font-size: 18px;
+    margin-bottom: 15px;
+}
+
+.manage-info .left__notice .left__notice-container {
+    display: flex;
+    gap: 4px;
+    justify-content: space-between;
+
+}
+
+.manage-info .left__notice .left__notice-container:not(:last-child) {
+    border-bottom: 1px solid #dadada;
+    margin-bottom: 5px;
+    padding: 5px 0px;
+}
+
+
+.manage-info .manage-info__right {
+    box-shadow: 1px 2px 9px #bababa;
+    width: 60%;
+    border-radius: 5px;
+    padding: 20px 0px;
+}
+
+.manage-info .right-body {
+    padding: 20px;
+}
+
+.manage-info .manage-info__right .right-calender {
+    border-bottom: 1px solid #bababa;
+    padding-bottom: 15px;
+    text-align: center;
+}
+
+.right-calender :where(.css-dev-only-do-not-override-p7e5j5).ant-picker .ant-picker-input >input:placeholder-shown {
+    font-size: 16px;
+}
+
+.manage-info .manage-info__right .right-calender .css-dev-only-do-not-override-p7e5j5 {
+    border: 1px solid #1677ff;
+    width: 190px;
+    height: 40px;
+}
+
+.manage-info .right-display {
+    display: flex;
+    align-items: center;
+    text-align: center;
+}
+
+.manage-info .manage-info__right .right-display-item {
+    width: calc(100%/3);
+    border-right: 1px solid #333;
+}
+
+.manage-info .manage-info__right .item-info {
+    display: inline-block;
+    margin-left: 10px;
+}
+
+
+.manage-info .right-body-list .list-title {
+    display: flex;
+    background-color: #dedada;
+    margin-top: 15px;
+    padding: 5px 10px;
+}
+
+.manage-info .right-body-list .list-item {
+    display: flex;
+    margin-top: 15px;
+    padding: 5px 10px;
+}
+
+.manage-info .right-body-list .list-item:not(:last-child) {
+    border-bottom: 1px solid #bababa;
+}

@@ -4,6 +4,7 @@ import Login from './pages/login/Login';
 import Listing from './pages/listing/Listing';
 import Adding from './pages/adding/Adding';
 import Dashboard from './pages/dashboard/Dashboard';
+import ManageInfo from './pages/manageInfo/ManageInfo';
 
 function App() {
   return (
@@ -28,6 +29,10 @@ function App() {
         <Route
           path='/dashboard'
           element={<Dashboard />}
+        />
+        <Route
+          path='/manageinfo'
+          element={<ManageInfo />}
         />
       </Routes>
     </BrowserRouter>
