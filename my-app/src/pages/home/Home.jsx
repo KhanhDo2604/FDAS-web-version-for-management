@@ -1,14 +1,30 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Listing from '../listing/Listing';
 import Dashboard from '../dashboard/Dashboard';
 import { TABS } from '../../constant';
+import { UserAuth } from '../../hooks/useAuth';
+import { getDownloadURL, ref } from 'firebase/storage';
+import { storage } from '../../firebase';
 
 const Home = () => {
     const [isActive, setIsActive] = useState(TABS[0])
-
+    const [url, setUrl] = useState(null)
+    const { logOut, user } = UserAuth()
     const handleActive = (tab) => {
         setIsActive(tab);
     };
+
+    useEffect(() => {
+        if (user) {
+            getDownloadURL(ref(storage, user.url))
+                .then((res) => {
+                    setUrl(res)
+                })
+                .catch((error) => console.log(error))
+        } else {
+            return;
+        }
+    }, [])
 
     return (
         <>
@@ -31,8 +47,8 @@ const Home = () => {
                     <div style={{ display: "flex", justifyContent: "space-between", padding: "20px" }}>
                         <img src="/Button.png" alt="" />
                         <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
-                            <img src="/Logout.png" alt="" />
-                            <img src="/Avatar.png" alt="" />
+                            <img onClick={() => logOut()} src="/Logout.png" alt="" />
+                            {url ? <img src={url} alt="" style={{ width: "40px", height: "40px", borderRadius: "50%" }} /> : null}
                         </div>
                     </div>
                     <div style={{ width: "100%", height: "2px", boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.25)" }}></div>

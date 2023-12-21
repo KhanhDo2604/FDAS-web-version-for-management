@@ -128,6 +128,7 @@ const PaginatedTable = ({ listMember, itemPerpage, layout = 1 }) => {
                     onPageChange={handlePageClick}
                     pageRangeDisplayed={5}
                     pageCount={pageCount}
+                    activeLinkClassName={"active-link"}
                     previousLabel="<"
                     renderOnZeroPageCount={null}
                 />

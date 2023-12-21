@@ -1,12 +1,12 @@
 import React, { useRef, useState } from 'react'
 import { AiOutlinePlus } from "react-icons/ai"
 import { DatePicker } from "antd";
-import { collection, doc, getDoc, setDoc } from 'firebase/firestore';
+import { collection, doc, getDocs, query, setDoc, where } from 'firebase/firestore';
 import { db, storage } from '../firebase';
 import { generateRandomID } from '../helpers';
 import { ref, uploadBytes } from 'firebase/storage';
-import emailjs from '@emailjs/browser';
 import axios from 'axios';
+import { createUserWithEmailAndPassword, getAuth } from 'firebase/auth';
 
 const AddEmployeeModal = ({ setShowModal, password, getAllData }) => {
     const imageRef = useRef()
@@ -44,22 +44,29 @@ const AddEmployeeModal = ({ setShowModal, password, getAllData }) => {
 
     const handleSubmitForm = async (e) => {
         e.preventDefault()
+        // check email unique
+        const docRef = collection(db, 'User');
+        const q = query(docRef, where('email', '==', data.email));
+        const docsSnap = await getDocs(q);
+        if (!docsSnap.empty) {
+            console.log("Email is exists");
+            return;
+        } else {
+            console.log('No such document!');
+        }
+
+        // format date
         const timeStamp = dateOfBirth.split("-")
         const newDate = new Date(timeStamp[2], timeStamp[1] - 1, timeStamp[0])
-        let isUnique = false;
-        let randomID;
 
-        while (!isUnique) {
-            randomID = generateRandomID();
-            const userRef = doc(collection(db, "User"), String(randomID));
+        // randomID
+        const randomID = generateRandomID()
 
-            const docSnapshot = await getDoc(userRef);
-            if (!docSnapshot.exists()) {
-                isUnique = true;
-            }
-        }
         const userRef = doc(collection(db, "User"), String(randomID))
 
+        const auth = getAuth()
+
+        // upload image to storage and save link to firestore
         const fileExtension = data.image.name.split('.').pop()
         const fileName = `${randomID}.${fileExtension}`
         const storageRef = ref(storage, `users/${fileName}`)
@@ -70,6 +77,8 @@ const AddEmployeeModal = ({ setShowModal, password, getAllData }) => {
         const templateId = 'template_mk2rho9'
         const publicKey = 'BtDf-B_O7lUY_1xB4'
 
+        await createUserWithEmailAndPassword(auth, data.email, password)
+
         await setDoc(userRef, {
             name: data.fullName,
             role: data.role,
@@ -79,7 +88,8 @@ const AddEmployeeModal = ({ setShowModal, password, getAllData }) => {
             email: data.email,
             birthday: newDate,
             status: 1,
-            url: snapshot.ref.fullPath
+            url: snapshot.ref.fullPath,
+            role: "staff"
         })
 
         const dataOfEmails = {
@@ -92,14 +102,11 @@ const AddEmployeeModal = ({ setShowModal, password, getAllData }) => {
             }
         }
 
-        try {
-            const res = await axios.post('https://api.emailjs.com/api/v1.0/email/send', dataOfEmails)
-            console.log(res);
-        } catch (error) {
-            console.log(error);
-        }
+        // send to email
+        await axios.post('https://api.emailjs.com/api/v1.0/email/send', dataOfEmails)
 
         setShowModal(false)
+
         getAllData()
     }
 

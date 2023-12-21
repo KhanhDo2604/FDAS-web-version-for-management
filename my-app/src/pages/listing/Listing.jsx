@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import PaginatedTable from '../../components/PaginatedTable ';
-import { LIST_MEMBER } from '../../constant';
 import AddEmployeeModal from '../../components/AddEmployeeModal';
 import { generatePassword } from '../../helpers';
 import { collection, getDocs, query } from 'firebase/firestore';

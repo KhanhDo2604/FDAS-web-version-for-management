@@ -11,9 +11,12 @@ import { MdArrowForwardIos } from "react-icons/md";
 
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom'
+import { UserAuth } from '../../hooks/useAuth';
 
 const Login = () => {
   const [email, setEmail] = useState("");
+  const { user } = UserAuth()
+  console.log(user);
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const auth = getAuth();
@@ -22,7 +25,11 @@ const Login = () => {
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         // Logged in
-        navigate("/");
+        if (user.role === "staff") {
+          navigate("/manageinfo");
+        } else {
+          navigate("/");
+        }
       })
       .catch((error) => {
         const errorCode = error.code;
