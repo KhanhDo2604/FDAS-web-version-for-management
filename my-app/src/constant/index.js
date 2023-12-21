@@ -139,3 +139,90 @@ export const CONFIG_CHART = {
         },
     },
 };
+
+export const array = [
+    {
+        id: 1,
+        name: "JAN",
+        nor: 100,
+        in: 100,
+        tr: 30
+    },
+    {
+        id: 2,
+        name: "FEB",
+        nor: 100,
+        in: 100,
+        tr: 20
+    },
+    {
+        id: 3,
+        name: "MAR",
+        nor: 100,
+        in: 100,
+        tr: 90
+    },
+    {
+        id: 4,
+        name: "APR",
+        nor: 100,
+        in: 100,
+        tr: 2
+    },
+    {
+        id: 5,
+        name: "MAY",
+        nor: 100,
+        in: 100,
+        tr: 120
+    },
+    {
+        id: 6,
+        name: "JUN",
+        nor: 100,
+        in: 100,
+        tr: 120
+    },
+    {
+        id: 7,
+        name: "JUL",
+        nor: 100,
+        in: 100,
+        tr: 120
+    },
+    {
+        id: 8,
+        name: "AUG",
+        nor: 100,
+        in: 100,
+        tr: 120
+    },
+    {
+        id: 9,
+        name: "SEP",
+        nor: 100,
+        in: 100,
+        tr: 120
+    },
+    {
+        id: 10,
+        name: "OCT",
+        nor: 100,
+        in: 100,
+        tr: 10
+    },
+    {
+        id: 11,
+        name: "NOV",
+        nor: 100,
+        in: 100,
+        tr: 80
+    },
+    {
+        id: 12,
+        name: "DEC",
+        nor: 100,
+        in: 100,
+        tr: 50
+    }
+]

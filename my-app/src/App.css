@@ -6,3 +6,58 @@
   padding: 0;
   font-family: Raleway, sans-serif;
 }
+progress::-webkit-progress-bar {
+  background-color: #d9d9d980;
+  border-radius: 10px;
+}
+
+.present progress::-webkit-progress-value {
+  background-color: #f9d410;
+  border-radius: 10px;
+}
+
+.present progress::-moz-progress-bar {
+  background-color: #f9d410;
+  border-radius: 10px;
+}
+
+.absent progress::-webkit-progress-value {
+  background-color: #e4644b;
+  border-radius: 10px;
+}
+
+.absent progress::-moz-progress-bar {
+  background-color: #e4644b;
+  border-radius: 10px;
+}
+
+ul {
+  display: flex;
+  gap: 28px;
+  align-items: center;
+  list-style: none;
+  justify-content: center;
+  margin-top: 20px;
+  padding-bottom: 20px;
+}
+
+ul li a {
+  background-color: #ededed;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+ul li:active {
+  background-color: #000;
+  color: #fff;
+}
+
+.highlighted-text {
+  background-color: #1e85f1;
+  color: #fff;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  display: none;
+}

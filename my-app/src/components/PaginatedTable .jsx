@@ -90,36 +90,33 @@ const PaginatedTable = ({ listMember, itemPerpage, layout = 1 }) => {
                         {
                             currentItems?.map((value, index) => {
                                 return (
-                                    <>
-                                        <tr key={index}>
-                                            <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center", fontWeight: "bold" }}>{value.id}</td>
-                                            <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center" }}>
-                                                <Highlighter
-                                                    highlightClassName="highlighted-text"
-                                                    searchWords={[searchQuery]}
-                                                    autoEscape={true}
-                                                    textToHighlight={value.name}
-                                                />
-                                            </td>
-                                            <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center" }}>{value.role}</td>
-                                            {
-                                                layout === 1 ?
-                                                    <>
-                                                        <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center" }}>{value.late}</td>
-                                                        <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center" }}>{value.absent}</td>
-                                                        <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center", color: "#E13428", fontWeight: "bold" }}>{value.deduction}</td>
-                                                        <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center", color: "#5DA969", fontWeight: "bold" }}>{value.total}</td>
-                                                    </>
-                                                    :
-                                                    <>
-                                                        <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center" }}>{value.email}</td>
-                                                        <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center" }}>{value.phoneNumber}</td>
-                                                        <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center", color: "#E13428", fontWeight: "bold" }}>{value.status}</td>
-                                                    </>
-                                            }
-                                        </tr>
-
-                                    </>
+                                    <tr key={index}>
+                                        <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center", fontWeight: "bold" }}>{value.id}</td>
+                                        <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center" }}>
+                                            <Highlighter
+                                                highlightClassName="highlighted-text"
+                                                searchWords={[searchQuery]}
+                                                autoEscape={true}
+                                                textToHighlight={value.name}
+                                            />
+                                        </td>
+                                        <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center" }}>{value.role}</td>
+                                        {
+                                            layout === 1 ?
+                                                <>
+                                                    <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center" }}>{value.late}</td>
+                                                    <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center" }}>{value.absent}</td>
+                                                    <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center", color: "#E13428", fontWeight: "bold" }}>{value.deduction}</td>
+                                                    <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center", color: "#5DA969", fontWeight: "bold" }}>{value.total}</td>
+                                                </>
+                                                :
+                                                <>
+                                                    <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center" }}>{value.email}</td>
+                                                    <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center" }}>{value.phone}</td>
+                                                    <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center", color: "rgb(30, 133, 241)", fontWeight: "bold" }}>{value.status === 1 ? "Active" : "Deactive"}</td>
+                                                </>
+                                        }
+                                    </tr>
                                 )
                             })
                         }

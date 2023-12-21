@@ -1,6 +1,7 @@
 import React from 'react'
 
 const DeductionModal = ({ setIsModal }) => {
+
     const handleCancel = () => {
         setIsModal(false)
     }
@@ -11,7 +12,7 @@ const DeductionModal = ({ setIsModal }) => {
 
     return (
         <div style={{ backgroundColor: "rgba(0,0,0,0.4)", width: "100%", height: "100%", position: "absolute", top: 0, left: 0 }}>
-            <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translateY(-50%) translateX(-50%)", }}>
+            <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translateY(-50%) translateX(-50%)" }}>
                 <div style={{ backgroundColor: "white", padding: "20px", borderRadius: "10px", display: "flex", flexDirection: "column", gap: "20px" }}>
                     <div>
                         <h2 style={{ fontWeight: "bold", fontSize: "20px" }}>Set deuction rate</h2>

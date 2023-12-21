@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import "../login/Login.css";
 import { BiSolidUser } from "react-icons/bi";
 import { RiLockPasswordFill } from "react-icons/ri";
@@ -9,8 +9,7 @@ import {
 } from "react-icons/ai";
 import { MdArrowForwardIos } from "react-icons/md";
 
-import {  getAuth, signInWithEmailAndPassword   } from 'firebase/auth';
-import { auth } from '../../firebase';
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom'
 
 const Login = () => {
@@ -23,9 +22,7 @@ const Login = () => {
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         // Logged in
-        const user = userCredential.user;
-        navigate("/dashboard");
-        console.log(user);
+        navigate("/");
       })
       .catch((error) => {
         const errorCode = error.code;
