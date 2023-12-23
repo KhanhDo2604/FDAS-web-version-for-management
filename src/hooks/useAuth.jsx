@@ -1,8 +1,8 @@
-import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { createContext, useContext, useEffect, useState } from 'react';
+import { signOut } from 'firebase/auth';
+import { createContext, useContext, useState } from 'react';
 import { auth, db } from '../firebase';
 import { collection, getDocs, query, where } from 'firebase/firestore';
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 
 const AuthContext = createContext();
 
@@ -11,14 +11,13 @@ export const AuthContextProvider = ({ children }) => {
 
   // logout
   const logOut = () => {
-    return signOut(auth).then((result) => {
-      setUser(null);
-    }).catch((err) => {
-
-    });
+    return signOut(auth)
+      .then((result) => {
+        setUser(null);
+      })
+      .catch((err) => {});
   };
 
-  // logout
   const logIn = (email, password) =>
     signInWithEmailAndPassword(auth, email, password)
       .then(async (credential) => {

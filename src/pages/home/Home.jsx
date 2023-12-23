@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
 import Listing from "../listing/Listing";
 import Dashboard from "../dashboard/Dashboard";
-import { TABS } from "../../constant";
 import { UserAuth } from "../../hooks/useAuth";
 import { getDownloadURL, ref } from "firebase/storage";
 import { storage } from "../../firebase";
 import { useNavigate } from 'react-router-dom'
+import { TABS } from "../../constant";
 
 const Home = () => {
   const [isActive, setIsActive] = useState(TABS[0]);
+  const [isSidebarVisible, setIsSidebarVisible] = useState(true);
+
   const [url, setUrl] = useState(null);
   const { logOut, user } = UserAuth();
   const navigate = useNavigate();
@@ -29,13 +31,15 @@ const Home = () => {
       return;
     }
   }, [user]);
-
+  const toggleSidebar = () => {
+    setIsSidebarVisible(!isSidebarVisible);
+  };
   return (
     <>
       <div style={{ display: "flex" }}>
         <div
           style={{
-            width: "280px",
+            width: isSidebarVisible ? "280px" : "0",
             backgroundColor: "#1e85f1",
             color: "white",
             display: "flex",
@@ -44,10 +48,10 @@ const Home = () => {
             alignItems: "center",
             justifyContent: "center",
             gap: "20px",
-            paddingLeft: "26px",
+            paddingLeft: isSidebarVisible ? "26px" : "0px",
           }}
         >
-          {TABS.map((tab, index) => (
+          {isSidebarVisible ? TABS.map((tab, index) => (
             <div
               key={index}
               onClick={() => handleActive(tab)}
@@ -84,12 +88,13 @@ const Home = () => {
                   display: "flex",
                   justifyContent: "start",
                   width: "70%",
+                  fontSize: "20px"
                 }}
               >
                 {tab.name}
               </span>
             </div>
-          ))}
+          )) : null}
         </div>
         <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
           <div
@@ -99,7 +104,7 @@ const Home = () => {
               padding: "20px",
             }}
           >
-            <img src="/Button.png" alt="" />
+            <img onClick={toggleSidebar} src="/Button.png" alt="" />
             <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
               <img
                 onClick={() => {
@@ -132,7 +137,7 @@ const Home = () => {
             {isActive.id === 1 ? <Dashboard /> : <Listing />}
           </div>
         </div>
-      </div>
+      </div >
     </>
   );
 };

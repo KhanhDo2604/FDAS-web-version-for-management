@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import "./ManageInfo.css";
 import { FaPhone } from "react-icons/fa6";
 import { FaTransgender, FaBirthdayCake } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
@@ -44,7 +43,7 @@ const ManageInfo = () => {
           padding: "20px",
         }}
       >
-        <img src="/Button.png" alt="" />
+        <div></div>
         <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
           <img
             onClick={() => {

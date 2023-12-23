@@ -1,9 +1,7 @@
-// import { Column } from '@ant-design/charts'
 import React, { useState } from 'react'
 import { DatePicker } from "antd";
 import PaginatedTable from '../../components/PaginatedTable ';
-import { CONFIG_CHART, LIST_MEMBER_OF_DASHBOARD } from '../../constant';
-import { UserAuth } from '../../hooks/useAuth';
+import { LIST_MEMBER_OF_DASHBOARD } from '../../constant';
 const { RangePicker } = DatePicker
 
 const Dashboard = () => {

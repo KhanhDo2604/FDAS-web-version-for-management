@@ -1,25 +1,18 @@
 import React, { useState } from "react";
-// import "../login/Login.css";
 import { BiSolidUser } from "react-icons/bi";
 import { RiLockPasswordFill } from "react-icons/ri";
-import {
-  AiOutlineInstagram,
-  AiFillFacebook,
-  AiOutlineTwitter,
-} from "react-icons/ai";
 import { MdArrowForwardIos } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import { UserAuth } from "../../hooks/useAuth";
 
 const Login = () => {
   const [email, setEmail] = useState("");
-  const { user, logIn } = UserAuth();
+  const { logIn } = UserAuth();
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
   return (
     <div
-      className="container"
       style={{
         display: "flex",
         alignItems: "center",
@@ -29,7 +22,6 @@ const Login = () => {
       }}
     >
       <div
-        className="screen"
         style={{
           background: "linear-gradient(90deg, #5d54a4, #7c78b8)",
           position: "relative",
@@ -39,7 +31,6 @@ const Login = () => {
         }}
       >
         <div
-          className="screen__content"
           style={{
             zIndex: "1",
             position: "relative",
@@ -47,7 +38,6 @@ const Login = () => {
           }}
         >
           <form
-            className="login"
             style={{
               width: "320px",
               padding: "30px",
@@ -55,14 +45,12 @@ const Login = () => {
             }}
           >
             <div
-              className="login__field"
               style={{
                 padding: "20px 0px",
                 position: "relative",
               }}
             >
               <BiSolidUser
-                className="login__icon"
                 style={{
                   position: "absolute",
                   top: "30px",
@@ -87,7 +75,6 @@ const Login = () => {
               />
             </div>
             <div
-              className="login__field"
               style={{
                 padding: "20px 0px",
                 position: "relative",
@@ -119,7 +106,6 @@ const Login = () => {
               />
             </div>
             <button
-              className="button login__submit"
               style={{
                 background: "#fff",
                 fontSize: "14px",
@@ -148,13 +134,12 @@ const Login = () => {
                 });
               }}
             >
-              <span className="button__text">Log In Now</span>
-              <MdArrowForwardIos className="button__icon" />
+              <span>Log In Now</span>
+              <MdArrowForwardIos />
             </button>
           </form>
         </div>
         <div
-          className="screen__background"
           style={{
             position: "absolute",
             top: "0",
@@ -167,7 +152,6 @@ const Login = () => {
           }}
         >
           <span
-            className="screen__background__shape screen__background__shape4"
             style={{
               height: "400px",
               width: "200px",
@@ -180,7 +164,6 @@ const Login = () => {
             }}
           ></span>
           <span
-            className="screen__background__shape screen__background__shape3"
             style={{
               height: "540px",
               width: "190px",
@@ -193,7 +176,6 @@ const Login = () => {
             }}
           ></span>
           <span
-            className="screen__background__shape screen__background__shape2"
             style={{
               height: "220px",
               width: "220px",
@@ -206,7 +188,6 @@ const Login = () => {
             }}
           ></span>
           <span
-            className="screen__background__shape screen__background__shape1"
             style={{
               height: "520px",
               width: "520px",

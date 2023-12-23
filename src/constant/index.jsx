@@ -5,12 +5,12 @@ export const TABS = [
   {
     id: 1,
     name: 'Dashboard',
-    icon: <FaChartBar size={24} />,
+    icon: <FaChartBar size={20} />,
   },
   {
     id: 2,
     name: 'List Employee',
-    icon: <FaListUl size={24} />,
+    icon: <FaListUl size={20} />,
   },
 ];
 
