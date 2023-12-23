@@ -12,8 +12,12 @@ const PaginatedTable = ({ listMember, itemPerpage, layout = 1 }) => {
 
     const [itemOffset, setItemOffset] = useState(0);
 
-    const filteredList = listMember.filter((item) => item.name.toLowerCase().includes(searchQuery.toLowerCase())
-    )
+    const filteredList = listMember?.filter(item => {
+        if (item.name) {
+            return item.name.toLowerCase().includes(searchQuery.toLowerCase())
+        }
+    })
+
 
     const endOffset = itemOffset + itemPerpage;
     const currentItems = filteredList.slice(itemOffset, endOffset);

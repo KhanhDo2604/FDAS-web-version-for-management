@@ -16,7 +16,6 @@ import { UserAuth } from '../../hooks/useAuth';
 const Login = () => {
   const [email, setEmail] = useState("");
   const { user } = UserAuth()
-  console.log(user);
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const auth = getAuth();
@@ -24,8 +23,7 @@ const Login = () => {
     e.preventDefault();
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        // Logged in
-        if (user.role === "staff") {
+        if (user.role == "staff") {
           navigate("/manageinfo");
         } else {
           navigate("/");

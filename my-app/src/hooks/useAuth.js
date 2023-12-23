@@ -10,7 +10,7 @@ export const AuthContextProvider = ({ children }) => {
 
   // logout
   const logOut = async () => {
-    return signOut(auth);
+    return await signOut(auth);
   };
 
   //onAuthStateChanged

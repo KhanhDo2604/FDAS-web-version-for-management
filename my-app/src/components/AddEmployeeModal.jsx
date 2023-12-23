@@ -81,7 +81,7 @@ const AddEmployeeModal = ({ setShowModal, password, getAllData }) => {
 
         await setDoc(userRef, {
             name: data.fullName,
-            role: data.role,
+            postion: data.role,
             phone: data.phoneNumber,
             last_attendance_time: "",
             gender: data.gender,
@@ -89,7 +89,8 @@ const AddEmployeeModal = ({ setShowModal, password, getAllData }) => {
             birthday: newDate,
             status: 1,
             url: snapshot.ref.fullPath,
-            role: "staff"
+            role: "staff",
+            uid: randomID
         })
 
         const dataOfEmails = {

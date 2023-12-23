@@ -5,26 +5,29 @@ import { TABS } from '../../constant';
 import { UserAuth } from '../../hooks/useAuth';
 import { getDownloadURL, ref } from 'firebase/storage';
 import { storage } from '../../firebase';
+import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
     const [isActive, setIsActive] = useState(TABS[0])
     const [url, setUrl] = useState(null)
     const { logOut, user } = UserAuth()
+    const navigate = useNavigate()
     const handleActive = (tab) => {
         setIsActive(tab);
     };
 
     useEffect(() => {
-        if (user) {
-            getDownloadURL(ref(storage, user.url))
+        if (user && user.url) {
+            const fileRef = ref(storage, user.url);
+            getDownloadURL(fileRef)
                 .then((res) => {
-                    setUrl(res)
+                    setUrl(res);
                 })
-                .catch((error) => console.log(error))
+                .catch((error) => console.log(error));
         } else {
             return;
         }
-    }, [])
+    }, [user]);
 
     return (
         <>
@@ -47,7 +50,10 @@ const Home = () => {
                     <div style={{ display: "flex", justifyContent: "space-between", padding: "20px" }}>
                         <img src="/Button.png" alt="" />
                         <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
-                            <img onClick={() => logOut()} src="/Logout.png" alt="" />
+                            <img onClick={() => {
+                                logOut()
+                                navigate("/login")
+                            }} src="/Logout.png" alt="" />
                             {url ? <img src={url} alt="" style={{ width: "40px", height: "40px", borderRadius: "50%" }} /> : null}
                         </div>
                     </div>
