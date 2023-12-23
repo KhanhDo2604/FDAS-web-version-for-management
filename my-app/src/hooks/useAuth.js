@@ -2,15 +2,22 @@ import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { createContext, useContext, useEffect, useState } from 'react';
 import { auth, db } from '../firebase';
 import { collection, getDocs, query, where } from 'firebase/firestore';
+import { useNavigate } from "react-router-dom";
 
 const AuthContext = createContext();
 
 export const AuthContextProvider = ({ children }) => {
   const [user, setUser] = useState({});
+  const navigate = useNavigate();
 
   // logout
-  const logOut = async () => {
-    return await signOut(auth);
+  const logOut = () => {
+    return signOut(auth).then((result) => {
+      console.log(result);
+      // navigate("/login")
+    }).catch((err) => {
+
+    });;
   };
 
   //onAuthStateChanged
