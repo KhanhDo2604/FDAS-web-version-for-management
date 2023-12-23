@@ -5,11 +5,14 @@ import { TABS } from "../../constant";
 import { UserAuth } from "../../hooks/useAuth";
 import { getDownloadURL, ref } from "firebase/storage";
 import { storage } from "../../firebase";
+import { useNavigate } from 'react-router-dom'
 
 const Home = () => {
   const [isActive, setIsActive] = useState(TABS[0]);
   const [url, setUrl] = useState(null);
   const { logOut, user } = UserAuth();
+  const navigate = useNavigate();
+
   const handleActive = (tab) => {
     setIsActive(tab);
   };
@@ -101,6 +104,7 @@ const Home = () => {
               <img
                 onClick={() => {
                   logOut();
+                  navigate("/login");
                 }}
                 src="/Logout.png"
                 alt=""

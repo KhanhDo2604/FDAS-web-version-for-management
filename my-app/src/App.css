@@ -61,3 +61,34 @@ ul li a {
 .custom-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+.individual-detail .detail-container:not(:last-child) {
+  margin-bottom: 15px;
+}
+
+.left__notice .left__notice-container:not(:last-child) {
+  border-bottom: 1px solid #dadada;
+  margin-bottom: 5px;
+  padding: 5px 0px;
+}
+
+.right-calender :where(.css-dev-only-do-not-override-p7e5j5).ant-picker .ant-picker-input >input:placeholder-shown {
+  font-size: 16px;
+}
+
+.manage-info .manage-info__right .right-calender .css-dev-only-do-not-override-p7e5j5 {
+  border: 1px solid #1677ff;
+  width: 190px;
+  height: 40px;
+}
+
+.manage-info .right-body-list .list-item:not(:last-child) {
+  border-bottom: 1px solid #bababa;
+}
+
+.login__input:active,
+.login__input:focus,
+.login__input:hover {
+  outline: none;
+  border-bottom-color: #6a679e;
+}
