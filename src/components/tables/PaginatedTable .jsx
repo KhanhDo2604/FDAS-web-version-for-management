@@ -4,7 +4,7 @@ import Highlighter from 'react-highlight-words';
 import ReactPaginate from 'react-paginate';
 import { CiSearch } from "react-icons/ci";
 import { FiDownload } from "react-icons/fi";
-import DeductionModal from './DeductionModal';
+import DeductionModal from "../modal/DeductionModal"
 
 const PaginatedTable = ({ listMember, itemPerpage, layout = 1 }) => {
     const [searchQuery, setSearchQuery] = useState('')

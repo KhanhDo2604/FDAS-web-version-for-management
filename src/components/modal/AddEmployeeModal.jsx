@@ -2,8 +2,8 @@ import React, { useRef, useState } from 'react'
 import { AiOutlinePlus } from "react-icons/ai"
 import { DatePicker } from "antd";
 import { collection, doc, getDocs, query, setDoc, where } from 'firebase/firestore';
-import { db, storage } from '../firebase';
-import { generateRandomID } from '../helpers';
+import { db, storage } from '../../firebase';
+import { generateRandomID } from '../../helpers';
 import { ref, uploadBytes } from 'firebase/storage';
 import axios from 'axios';
 import { createUserWithEmailAndPassword, getAuth } from 'firebase/auth';

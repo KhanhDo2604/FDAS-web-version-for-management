@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
-import PaginatedTable from '../../components/PaginatedTable ';
-import AddEmployeeModal from '../../components/AddEmployeeModal';
+import PaginatedTable from '../../components/tables/PaginatedTable ';
 import { generatePassword } from '../../helpers';
 import { collection, getDocs, query } from 'firebase/firestore';
 import { db } from '../../firebase';
+import AddEmployeeModal from "../../components/modal/AddEmployeeModal"
 
 const Listing = () => {
     const [showModal, setShowModal] = useState(false)

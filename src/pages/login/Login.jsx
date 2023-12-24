@@ -3,7 +3,7 @@ import { BiSolidUser } from "react-icons/bi";
 import { RiLockPasswordFill } from "react-icons/ri";
 import { MdArrowForwardIos } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
-import { UserAuth } from "../../hooks/useAuth";
+import { UserAuth } from "../../components/hooks/useAuth";
 
 const Login = () => {
   const [email, setEmail] = useState("");

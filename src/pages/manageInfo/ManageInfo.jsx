@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { FaPhone } from "react-icons/fa6";
 import { FaTransgender, FaBirthdayCake } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
@@ -6,63 +6,18 @@ import { Avatar, Button, DatePicker } from "antd";
 import { RiErrorWarningFill } from "react-icons/ri";
 import { IoMdCheckmarkCircleOutline } from "react-icons/io";
 import { RiErrorWarningLine } from "react-icons/ri";
-import { UserAuth } from "../../hooks/useAuth";
-import { getDownloadURL, ref } from "firebase/storage";
-import { storage } from "../../firebase";
+import { UserAuth } from "../../components/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import UserHeader from "../../components/layout/UserHeader";
 
 const ManageInfo = () => {
-  const { logOut, user } = UserAuth();
-  const [url, setUrl] = useState(null);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (user && user.url) {
-      const fileRef = ref(storage, user.url);
-
-      getDownloadURL(fileRef)
-        .then((res) => {
-          setUrl(res);
-        })
-        .catch((error) => console.log(error));
-    } else {
-      return;
-    }
-  }, [user]);
-
   const onChange = (date, dateString) => {
     console.log(date, dateString);
   };
 
   return (
     <>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          padding: "20px",
-        }}
-      >
-        <div></div>
-        <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
-          <img
-            onClick={() => {
-              logOut();
-              navigate("/login");
-            }}
-            src="/Logout.png"
-            alt=""
-          />
-          {url ? (
-            <img
-              src={url}
-              alt=""
-              style={{ width: "40px", height: "40px", borderRadius: "50%" }}
-            />
-          ) : null}
-        </div>
-      </div>
-
+      <UserHeader />
       <div style={{ display: "flex", padding: "25px", gap: "40px" }}>
         <div style={{ width: "40%" }}>
           <div

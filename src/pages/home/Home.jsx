@@ -1,39 +1,27 @@
-import React, { useEffect, useState } from "react";
-import Listing from "../listing/Listing";
-import Dashboard from "../dashboard/Dashboard";
-import { UserAuth } from "../../hooks/useAuth";
-import { getDownloadURL, ref } from "firebase/storage";
-import { storage } from "../../firebase";
+import React, { useState, Suspense } from "react";
+import { UserAuth } from "../../components/hooks/useAuth";
 import { useNavigate } from 'react-router-dom'
 import { TABS } from "../../constant";
+import UserHeader from "../../components/layout/UserHeader";
+
+const Dashboard = React.lazy(() => import("../dashboard/Dashboard"));
+const Listing = React.lazy(() => import("../listing/Listing"));
 
 const Home = () => {
   const [isActive, setIsActive] = useState(TABS[0]);
   const [isSidebarVisible, setIsSidebarVisible] = useState(true);
-
-  const [url, setUrl] = useState(null);
-  const { logOut, user } = UserAuth();
+  const { logOut } = UserAuth();
   const navigate = useNavigate();
 
   const handleActive = (tab) => {
     setIsActive(tab);
   };
 
-  useEffect(() => {
-    if (user && user.url) {
-      const fileRef = ref(storage, user.url);
-      getDownloadURL(fileRef)
-        .then((res) => {
-          setUrl(res);
-        })
-        .catch((error) => console.log(error));
-    } else {
-      return;
-    }
-  }, [user]);
+
   const toggleSidebar = () => {
     setIsSidebarVisible(!isSidebarVisible);
   };
+
   return (
     <>
       <div style={{ display: "flex" }}>
@@ -44,11 +32,10 @@ const Home = () => {
             color: "white",
             display: "flex",
             flexDirection: "column",
-            minHeight: "100vh",
             alignItems: "center",
             justifyContent: "center",
             gap: "20px",
-            paddingLeft: isSidebarVisible ? "26px" : "0px",
+            paddingLeft: isSidebarVisible ? "10px" : "0px",
           }}
         >
           {isSidebarVisible ? TABS.map((tab, index) => (
@@ -97,44 +84,14 @@ const Home = () => {
           )) : null}
         </div>
         <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              padding: "20px",
-            }}
-          >
-            <img onClick={toggleSidebar} src="/Button.png" alt="" />
-            <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
-              <img
-                onClick={() => {
-                  logOut();
-                  navigate("/login");
-                }}
-                src="/Logout.png"
-                alt=""
-              />
-              {url ? (
-                <img
-                  src={url}
-                  alt=""
-                  style={{ width: "40px", height: "40px", borderRadius: "50%" }}
-                />
-              ) : null}
-            </div>
-          </div>
-          <div
-            style={{
-              width: "100%",
-              height: "2px",
-              boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.25)",
-            }}
-          ></div>
+          <UserHeader toggleSidebar={toggleSidebar} />
           <div
             className="custom-scrollbar"
             style={{ overflowY: "scroll", height: "100vh" }}
           >
-            {isActive.id === 1 ? <Dashboard /> : <Listing />}
+            <Suspense fallback={<div>Loading...</div>}>
+              {isActive.id === 1 ? <Dashboard /> : <Listing />}
+            </Suspense>
           </div>
         </div>
       </div >

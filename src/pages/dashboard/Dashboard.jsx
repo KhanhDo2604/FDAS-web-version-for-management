@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { DatePicker } from "antd";
-import PaginatedTable from '../../components/PaginatedTable ';
+import PaginatedTable from '../../components/tables/PaginatedTable ';
 import { LIST_MEMBER_OF_DASHBOARD } from '../../constant';
 const { RangePicker } = DatePicker
 

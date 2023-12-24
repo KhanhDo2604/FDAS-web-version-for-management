@@ -1,6 +1,6 @@
 import { signOut } from 'firebase/auth';
 import { createContext, useContext, useState } from 'react';
-import { auth, db } from '../firebase';
+import { auth, db } from '../../firebase';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 
@@ -15,7 +15,7 @@ export const AuthContextProvider = ({ children }) => {
       .then((result) => {
         setUser(null);
       })
-      .catch((err) => {});
+      .catch((err) => { });
   };
 
   const logIn = (email, password) =>
