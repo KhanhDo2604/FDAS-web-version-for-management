@@ -90,7 +90,8 @@ const AddEmployeeModal = ({ setShowModal, password, getAllData }) => {
             status: 1,
             url: snapshot.ref.fullPath,
             role: "staff",
-            uid: randomID
+            uid: randomID,
+            salary: data.salary
         })
 
         const dataOfEmails = {

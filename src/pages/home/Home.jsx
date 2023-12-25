@@ -1,6 +1,4 @@
 import React, { useState, Suspense } from "react";
-import { UserAuth } from "../../components/hooks/useAuth";
-import { useNavigate } from 'react-router-dom'
 import { TABS } from "../../constant";
 import UserHeader from "../../components/layout/UserHeader";
 
@@ -10,13 +8,10 @@ const Listing = React.lazy(() => import("../listing/Listing"));
 const Home = () => {
   const [isActive, setIsActive] = useState(TABS[0]);
   const [isSidebarVisible, setIsSidebarVisible] = useState(true);
-  const { logOut } = UserAuth();
-  const navigate = useNavigate();
 
   const handleActive = (tab) => {
     setIsActive(tab);
   };
-
 
   const toggleSidebar = () => {
     setIsSidebarVisible(!isSidebarVisible);

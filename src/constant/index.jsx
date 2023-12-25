@@ -1,5 +1,6 @@
 import { FaChartBar } from 'react-icons/fa';
 import { FaListUl } from 'react-icons/fa6';
+import * as yup from 'yup';
 
 export const TABS = [
   {
@@ -11,72 +12,6 @@ export const TABS = [
     id: 2,
     name: 'List Employee',
     icon: <FaListUl size={20} />,
-  },
-];
-
-export const LIST_MEMBER_OF_DASHBOARD = [
-  {
-    id: '20521442',
-    name: 'Đỗ Phạm Huy Khánh',
-    role: 'Nhân viên',
-    late: 4,
-    absent: 5,
-    deduction: '500.000',
-    total: '12.500.000',
-  },
-  {
-    id: '20521442',
-    name: 'Đỗ Phạm Huy Khánh',
-    role: 'Nhân viên',
-    late: 4,
-    absent: 5,
-    deduction: '500.000',
-    total: '12.500.000',
-  },
-  {
-    id: '20521442',
-    name: 'Đỗ Phạm Huy Khánh',
-    role: 'Nhân viên',
-    late: 4,
-    absent: 5,
-    deduction: '500.000',
-    total: '12.500.000',
-  },
-  {
-    id: '20521442',
-    name: 'Đỗ Phạm Huy Khánh',
-    role: 'Nhân viên',
-    late: 4,
-    absent: 5,
-    deduction: '500.000',
-    total: '12.500.000',
-  },
-  {
-    id: '20521442',
-    name: 'Đỗ Phạm Huy Khánh',
-    role: 'Nhân viên',
-    late: 4,
-    absent: 5,
-    deduction: '500.000',
-    total: '12.500.000',
-  },
-  {
-    id: '20521442',
-    name: 'Nguyễn Văn Pháp',
-    role: 'Nhân viên',
-    late: 4,
-    absent: 5,
-    deduction: '500.000',
-    total: '12.500.000',
-  },
-  {
-    id: '20521442',
-    name: 'Võ Đình Vân',
-    role: 'Nhân viên',
-    late: 4,
-    absent: 5,
-    deduction: '500.000',
-    total: '12.500.000',
   },
 ];
 
@@ -196,3 +131,11 @@ export const array = [
     tr: 50,
   },
 ];
+
+export const absentRateSchema = yup.object().shape({
+  absent: yup.number().min(2, 'Absent rate must be at least 2').required('Absent rate is required'),
+});
+
+export const lateRateSchema = yup.object().shape({
+  late: yup.number().min(5, 'Absent rate must be at least 5').required('Late rate is required'),
+})

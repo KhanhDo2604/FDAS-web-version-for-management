@@ -1,11 +1,51 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { DatePicker } from "antd";
 import PaginatedTable from '../../components/tables/PaginatedTable ';
-import { LIST_MEMBER_OF_DASHBOARD } from '../../constant';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../../firebase';
 const { RangePicker } = DatePicker
 
 const Dashboard = () => {
   const [selected, setSelected] = useState('month')
+  const [informationOfStaff, setInformationOfStaff] = useState([])
+
+  useEffect(() => {
+    async function getAllData() {
+      const querySnapshot = await getDocs(collection(db, "User"))
+      let result = []
+
+      querySnapshot.forEach(async (doc) => {
+        if (doc.data().role === "staff") {
+          let totalAbsent = 0;
+          let totalLate = 0;
+          const subCollectionRef = collection(db, `User/${doc.id}/AttendanceRecord`);
+
+          const subCollectionSnapshot = await getDocs(subCollectionRef);
+
+          subCollectionSnapshot.forEach((subDoc) => {
+            const data = subDoc.data()
+            if (data.status === 0) {
+              totalAbsent++
+            } else if (data.status === 2) {
+              totalLate++
+            } else {
+              return
+            }
+          });
+
+          const userDoc = doc.data()
+
+          result.push({
+            ...userDoc,
+            totalAbsent,
+            totalLate
+          })
+          setInformationOfStaff(result);
+        }
+      })
+    }
+    getAllData()
+  }, [])
 
   return (
     <div style={{ position: "relative" }}>
@@ -71,7 +111,7 @@ const Dashboard = () => {
           {/* <Column {...CONFIG_CHART} /> */}
         </div>
       </div>
-      <PaginatedTable listMember={LIST_MEMBER_OF_DASHBOARD} itemPerpage={6} layout={1} />
+      <PaginatedTable listMember={informationOfStaff} itemPerpage={6} layout={1} />
     </div>
   )
 }

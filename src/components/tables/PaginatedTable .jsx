@@ -18,7 +18,6 @@ const PaginatedTable = ({ listMember, itemPerpage, layout = 1 }) => {
         }
     })
 
-
     const endOffset = itemOffset + itemPerpage;
     const currentItems = filteredList.slice(itemOffset, endOffset);
     const pageCount = Math.ceil(filteredList.length / itemPerpage);
@@ -95,7 +94,7 @@ const PaginatedTable = ({ listMember, itemPerpage, layout = 1 }) => {
                             currentItems?.map((value, index) => {
                                 return (
                                     <tr key={index}>
-                                        <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center", fontWeight: "bold" }}>{value.id}</td>
+                                        <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center", fontWeight: "bold" }}>{value.uid}</td>
                                         <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center" }}>
                                             <Highlighter
                                                 highlightClassName="highlighted-text"
@@ -108,8 +107,8 @@ const PaginatedTable = ({ listMember, itemPerpage, layout = 1 }) => {
                                         {
                                             layout === 1 ?
                                                 <>
-                                                    <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center" }}>{value.late}</td>
-                                                    <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center" }}>{value.absent}</td>
+                                                    <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center" }}>{value.totalLate}</td>
+                                                    <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center" }}>{value.totalAbsent}</td>
                                                     <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center", color: "#E13428", fontWeight: "bold" }}>{value.deduction}</td>
                                                     <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center", color: "#5DA969", fontWeight: "bold" }}>{value.total}</td>
                                                 </>
