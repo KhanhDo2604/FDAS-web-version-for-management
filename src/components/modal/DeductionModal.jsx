@@ -1,4 +1,4 @@
-import { collection, doc, getDocs, updateDoc } from 'firebase/firestore'
+import { collection, doc, getDoc, getDocs, updateDoc } from 'firebase/firestore'
 import React, { useEffect, useState } from 'react'
 import { db } from '../../firebase'
 import { toast } from 'react-toastify';
@@ -46,19 +46,21 @@ const DeductionModal = ({ setIsModal }) => {
         handleRateChange('late', lateRateSchema, e.target.value, 5);
     };
 
-    useEffect(() => {
-        const getRate = async () => {
-            const docRef = collection(db, 'Company');
+    const getRate = async () => {
+        const docRef = doc(db, 'Company', "TcIe43CAaSdN6FWzJVZC");
+        const docSnap = await getDoc(docRef);
 
-            const querySnapshot = await getDocs(docRef);
-
-            querySnapshot.forEach((doc) => {
-                setRate({
-                    absent: parseInt(doc.data().absent_rate),
-                    late: parseInt(doc.data().late_rate)
-                });
+        if (docSnap.exists()) {
+            setRate({
+                absent: parseInt(docSnap.data().absent_rate),
+                late: parseInt(docSnap.data().late_rate)
             });
+        } else {
+            console.log("No such document!");
         }
+    }
+
+    useEffect(() => {
         getRate()
     }, [])
 
@@ -68,7 +70,7 @@ const DeductionModal = ({ setIsModal }) => {
                 <div style={{ backgroundColor: "white", padding: "20px", borderRadius: "10px", display: "flex", flexDirection: "column", gap: "20px" }}>
                     <div>
                         <h2 style={{ fontWeight: "bold", fontSize: "20px" }}>Set deuction rate</h2>
-                        <p style={{ color: "#999999", fontWeight: "bold", fontSize: "16px" }}>defaut rate:</p>
+                        <p style={{ color: "#999999", fontWeight: "bold", fontSize: "16px" }}>Percentage rate (%)</p>
                     </div>
                     <div style={{ display: "flex", flexDirection: "row", gap: "20px" }}>
                         <div style={{ display: "flex", flexDirection: "column", gap: "20px", width: "50%" }}>

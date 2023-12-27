@@ -1,16 +1,19 @@
 import * as XLSX from 'xlsx';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Highlighter from 'react-highlight-words';
 import ReactPaginate from 'react-paginate';
 import { CiSearch } from "react-icons/ci";
 import { FiDownload } from "react-icons/fi";
 import DeductionModal from "../modal/DeductionModal"
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../../firebase';
 
-const PaginatedTable = ({ listMember, itemPerpage, layout = 1 }) => {
+const PaginatedTable = ({ listMember, countAttendanceRecord, itemPerpage, layout = 1 }) => {
     const [searchQuery, setSearchQuery] = useState('')
     const [isModal, setIsModal] = useState(false)
 
     const [itemOffset, setItemOffset] = useState(0);
+    const [company, setCompany] = useState({})
 
     const filteredList = listMember?.filter(item => {
         if (item.name) {
@@ -34,15 +37,28 @@ const PaginatedTable = ({ listMember, itemPerpage, layout = 1 }) => {
 
     // EXPORT DATA TO EXCEL
     const handleOnExport = () => {
-        const wb = XLSX.utils.book_new()
-        const ws = XLSX.utils.json_to_sheet(listMember)
-        XLSX.utils.book_append_sheet(wb, ws, "MySheet1")
-        XLSX.writeFile(wb, "MyExcel.xlsx")
+        // const wb = XLSX.utils.book_new()
+        // const ws = XLSX.utils.json_to_sheet(listMember)
+        // XLSX.utils.book_append_sheet(wb, ws, "MySheet1")
+        // XLSX.writeFile(wb, "MyExcel.xlsx")
     }
 
     const handleOpenModal = () => {
         setIsModal(true)
     }
+
+    useEffect(() => {
+        async function getCompany() {
+            const docRef = doc(db, "Company", "TcIe43CAaSdN6FWzJVZC")
+            const docSnap = await getDoc(docRef)
+            if (docSnap.exists()) {
+                setCompany(docSnap.data())
+            } else {
+                console.log("No such document!");
+            }
+        }
+        getCompany()
+    }, [])
 
     return (
         <>
@@ -92,6 +108,7 @@ const PaginatedTable = ({ listMember, itemPerpage, layout = 1 }) => {
                     <tbody>
                         {
                             currentItems?.map((value, index) => {
+                                // let deduction = value.salary * ((value.totalAbsent * company.absent_rate) / 100 + (value.totalLate * company.late_rate) / 100)
                                 return (
                                     <tr key={index}>
                                         <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center", fontWeight: "bold" }}>{value.uid}</td>
@@ -107,10 +124,10 @@ const PaginatedTable = ({ listMember, itemPerpage, layout = 1 }) => {
                                         {
                                             layout === 1 ?
                                                 <>
-                                                    <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center" }}>{value.totalLate}</td>
-                                                    <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center" }}>{value.totalAbsent}</td>
-                                                    <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center", color: "#E13428", fontWeight: "bold" }}>{value.deduction}</td>
-                                                    <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center", color: "#5DA969", fontWeight: "bold" }}>{value.total}</td>
+                                                    <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center" }}>{countAttendanceRecord[value.uid].late}</td>
+                                                    <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center" }}>{countAttendanceRecord[value.uid].absent}</td>
+                                                    {/* <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center", color: "#E13428", fontWeight: "bold" }}>{deduction ? deduction : 0}</td>
+                                                    <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center", color: "#5DA969", fontWeight: "bold" }}>{deduction ? (value.salary - deduction) : value.salary}</td> */}
                                                 </>
                                                 :
                                                 <>
