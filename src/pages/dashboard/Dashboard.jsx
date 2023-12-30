@@ -29,14 +29,18 @@ const Dashboard = () => {
   const [selected, setSelected] = useState('month')
   const [attendanceRecord, setAttendanceRecord] = useState([])
   const [countAttendanceRecord, setCountAttendanceRecord] = useState([])
-  const [rate, setRate] = useState({})
   const [listMember, setListMember] = useState([])
   const [countStaff, setCountStaff] = useState(null)
   const [lateCounts, setLateCounts] = useState([]);
   const [onTimeCounts, setOnTimeCounts] = useState([]);
   const [absentCounts, setAbsentCounts] = useState([]);
   const [ischeck, setIsCheck] = useState(false)
-
+  const [attendanceInfo, setAttendanceInfo] = useState({
+    maxLate: 0,
+    staffNameWithMaxLate: null,
+    maxAbsent: 0,
+    staffNameWithMaxAbsent: null,
+  });
   // Total Late
   const totalLate = lateCounts.reduce((total, count) => total + count, 0)
 
@@ -145,6 +149,7 @@ const Dashboard = () => {
     let detailedAttendance = [];
     const attendancePromises = [];
     let listMember = []
+    let lateCounts = {};
 
     for (const doc of querySnapshot.docs) {
       const staffId = doc.id;
@@ -190,10 +195,37 @@ const Dashboard = () => {
       staffAttendance[staffId].absent = totalDays - (staffAttendance[staffId].onTime + staffAttendance[staffId].late);
     });
 
+    let maxLate = 0;
+    let maxAbsent = 0;
+    let staffWithMaxLate = null;
+    let staffWithMaxAbsent = null;
+
+    for (const [staffId, { late, absent }] of Object.entries(staffAttendance)) {
+      if (late > maxLate) {
+        maxLate = late;
+        staffWithMaxLate = parseInt(staffId);
+      }
+
+      if (absent > maxAbsent) {
+        maxAbsent = absent;
+        staffWithMaxAbsent = parseInt(staffId);
+      }
+    }
+
+    const staffNameWithMaxLate = listMember.find((member) => member.uid === staffWithMaxLate)?.name;
+    const staffNameWithMaxAbsent = listMember.find((member) => member.uid === staffWithMaxAbsent)?.name;
+
     // Cập nhật state một lần với toàn bộ dữ liệu đã xử lý
     setListMember(listMember)
     setCountAttendanceRecord(staffAttendance);
     setAttendanceRecord(detailedAttendance);
+    setAttendanceInfo({
+      ...attendanceInfo,
+      maxLate: maxLate,
+      staffNameWithMaxLate: staffNameWithMaxLate,
+      maxAbsent: maxAbsent,
+      staffNameWithMaxAbsent: staffNameWithMaxAbsent,
+    });
   }
 
   const dayCheck = selected === 'day' && day ? day.getDate() : null;
@@ -226,20 +258,6 @@ const Dashboard = () => {
     }
   }, [lateCounts, onTimeCounts, absentCounts, date, day, selected, ischeck]);
 
-  async function getRate() {
-    const docRef = doc(db, 'Company', "TcIe43CAaSdN6FWzJVZC");
-    const docSnap = await getDoc(docRef);
-
-    if (docSnap.exists()) {
-      setRate({
-        absent: parseInt(docSnap.data().absent_rate),
-        late: parseInt(docSnap.data().late_rate)
-      });
-    } else {
-      console.log("No such document!");
-    }
-  }
-
   async function getCountStaff() {
     const coll = collection(db, "User")
     const q = query(coll, where("role", "==", "staff"))
@@ -248,7 +266,6 @@ const Dashboard = () => {
   }
 
   useEffect(() => {
-    getRate()
     getCountStaff()
   }, [])
 
@@ -304,11 +321,11 @@ const Dashboard = () => {
             <div style={{ display: "flex", flexDirection: "row", gap: "32px", alignItems: "center" }}>
               <div style={{ border: "1px solid #D9D9D9", borderRadius: "20px", padding: "12px", display: "flex", flexDirection: "column", gap: "4px", width: "50%" }}>
                 <h3>Latest employee</h3>
-                <p>Đỗ Phạm Huy Khánh - 4</p>
+                <p>{attendanceInfo?.staffNameWithMaxLate} - {attendanceInfo?.maxLate}</p>
               </div>
               <div style={{ border: "1px solid #D9D9D9", borderRadius: "20px", padding: "12px", display: "flex", flexDirection: "column", gap: "4px", width: "50%" }}>
                 <h3>Most time of</h3>
-                <p>Đỗ Phạm Huy Khánh - 4</p>
+                <p>{attendanceInfo?.staffNameWithMaxAbsent} - {attendanceInfo?.maxAbsent}</p>
               </div>
             </div>
 
