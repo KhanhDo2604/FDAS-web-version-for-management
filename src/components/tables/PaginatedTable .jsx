@@ -95,20 +95,24 @@ const PaginatedTable = ({ listMember, countAttendanceRecord, itemPerpage, layout
                                     <th style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center" }}>Deduction</th>
                                     <th style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center" }}>Total</th>
                                 </>
-                                :
-                                <>
-                                    <th style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center" }}>Email</th>
-                                    <th style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center" }}>Phone Number</th>
-                                    <th style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center" }}>Status</th>
-
-                                </>
+                                : layout === 2 ?
+                                    <>
+                                        <th style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center" }}>Email</th>
+                                        <th style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center" }}>Phone Number</th>
+                                        <th style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center" }}>Status</th>
+                                    </> :
+                                    <>
+                                        <th style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center" }}>Date</th>
+                                        <th style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center" }}>Check In</th>
+                                        <th style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center" }}>Status</th>
+                                    </>
                             }
                         </tr>
                     </thead>
                     <tbody>
                         {
                             currentItems?.map((value, index) => {
-                                // let deduction = value.salary * ((value.totalAbsent * company.absent_rate) / 100 + (value.totalLate * company.late_rate) / 100)
+                                let deduction = layout === 1 && value.salary * ((countAttendanceRecord[value.uid]?.absent * company.absent_rate) / 100 + (countAttendanceRecord[value.uid]?.late * company.late_rate) / 100)
                                 return (
                                     <tr key={index}>
                                         <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center", fontWeight: "bold" }}>{value.uid}</td>
@@ -124,17 +128,20 @@ const PaginatedTable = ({ listMember, countAttendanceRecord, itemPerpage, layout
                                         {
                                             layout === 1 ?
                                                 <>
-                                                    <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center" }}>{countAttendanceRecord[value.uid].late}</td>
-                                                    <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center" }}>{countAttendanceRecord[value.uid].absent}</td>
-                                                    {/* <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center", color: "#E13428", fontWeight: "bold" }}>{deduction ? deduction : 0}</td>
-                                                    <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center", color: "#5DA969", fontWeight: "bold" }}>{deduction ? (value.salary - deduction) : value.salary}</td> */}
+                                                    <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center" }}>{countAttendanceRecord[value.uid]?.late}</td>
+                                                    <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center" }}>{countAttendanceRecord[value.uid]?.absent}</td>
+                                                    <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center", color: "#E13428", fontWeight: "bold" }}>{deduction ? deduction : 0}</td>
+                                                    <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center", color: "#5DA969", fontWeight: "bold" }}>
+                                                        {deduction ? Math.max(0, value.salary - deduction) : value.salary}
+                                                    </td>
                                                 </>
-                                                :
-                                                <>
-                                                    <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center" }}>{value.email}</td>
-                                                    <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center" }}>{value.phone}</td>
-                                                    <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center", color: "rgb(30, 133, 241)", fontWeight: "bold" }}>{value.status === 1 ? "Active" : "Deactive"}</td>
-                                                </>
+                                                : layout === 2 ?
+                                                    <>
+                                                        <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center" }}>{value.email}</td>
+                                                        <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center" }}>{value.phone}</td>
+                                                        <td style={{ border: "1px solid #ddd", padding: "16px", textAlign: "center", color: "rgb(30, 133, 241)", fontWeight: "bold" }}>{value.status === 1 ? "Active" : "Deactive"}</td>
+                                                    </> :
+                                                    <></>
                                         }
                                     </tr>
                                 )

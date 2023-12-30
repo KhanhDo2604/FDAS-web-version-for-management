@@ -26,3 +26,29 @@ export async function generateUniqueID() {
   }
   return randomID;
 }
+
+// Lấy tháng và năm hiện tại
+export const getCurrentMonthYear = () => {
+  const today = new Date();
+  return {
+    currentDay: today.getDay(),
+    currentMonth: today.getMonth() + 1,
+    currentYear: today.getFullYear(),
+  };
+};
+
+export const options = {
+  scales: {
+    x: {
+      stacked: true,
+    },
+    y: {
+      stacked: true,
+    },
+  },
+};
+
+export function matchesDate(timestamp, day, month, year) {
+  const date = new Date(timestamp.seconds * 1000);
+  return date.getDate() === day && date.getMonth() === month && date.getFullYear() === year;
+}
