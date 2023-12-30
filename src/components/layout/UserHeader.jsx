@@ -22,10 +22,11 @@ const UserHeader = ({ toggleSidebar }) => {
                     padding: "10px",
                 }}
             >
-                <img onClick={toggleSidebar} src="/Button.png" alt="" />
+                <img onClick={toggleSidebar} src="/Button.png" alt="" style={{width: '32px', cursor: 'pointer'}}/>
                 <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
                     <img
                         onClick={handleLogout}
+                        style={{width: '24px', cursor: 'pointer'}}
                         src="/Logout.png"
                         alt=""
                     />
