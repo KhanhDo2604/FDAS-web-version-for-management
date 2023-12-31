@@ -1,34 +1,27 @@
-import React, { useRef, useState } from "react";
+import React, { useDebugValue, useEffect, useRef, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { DatePicker } from "antd";
-import {
-  collection,
-  doc,
-  getDocs,
-  query,
-  setDoc,
-  where,
-} from "firebase/firestore";
+import { doc, collection, updateDoc } from "firebase/firestore";
 import { db, storage } from "../../firebase";
-import { generateRandomID } from "../../helpers";
 import { ref, uploadBytes } from "firebase/storage";
-import axios from "axios";
-import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
+import { toast } from "react-toastify";
 
-const AddEmployeeModal = ({ setShowModal, password, getAllData }) => {
+const EditEmployeeModal = ({ setShowModal, user, setIsChange }) => {
   const imageRef = useRef();
   const form = useRef();
 
-  const [dateOfBirth, setDateOfBirth] = useState(null);
+  const [dateOfBirth, setDateOfBirth] = useState(
+    new Date(user.birthday.seconds).toLocaleDateString("en-US")
+  );
+
+  const [isImage, setIsImage] = useState(false);
 
   const [data, setData] = useState({
-    image: "",
-    role: "Markerting",
-    fullName: "",
-    email: "",
-    phoneNumber: "",
-    gender: "Male",
-    salary: "",
+    image: user.url,
+    fullName: user.name,
+    phoneNumber: user.phone,
+    gender: user.gender,
+    birthday: dateOfBirth,
   });
 
   const onChange = (date, dateString) => {
@@ -44,6 +37,7 @@ const AddEmployeeModal = ({ setShowModal, password, getAllData }) => {
     if (name === "image") {
       const file = files[0];
       setData({ ...data, [name]: file });
+      setIsImage(true);
     } else {
       setData({ ...data, [name]: value });
     }
@@ -51,75 +45,56 @@ const AddEmployeeModal = ({ setShowModal, password, getAllData }) => {
 
   const handleSubmitForm = async (e) => {
     e.preventDefault();
-    // check email unique
-    const docRef = collection(db, "User");
-    const q = query(docRef, where("email", "==", data.email));
-    const docsSnap = await getDocs(q);
-    if (!docsSnap.empty) {
-      console.log("Email is exists");
-      return;
-    } else {
-      console.log("No such document!");
+
+    try {
+      let docRef = doc(collection(db, "User"), user.uid.toString());
+      const time = new Date(dateOfBirth);
+      if (
+        data.fullName !== user.name ||
+        data.phoneNumber !== user.phone ||
+        data.gender !== user.gender ||
+        dateOfBirth !==
+          new Date(user.birthday.seconds).toLocaleDateString("en-US")
+      ) {
+        if (isImage) {
+          const fileExtension = data.image.name.split(".").pop();
+          const fileName = `${user.uid}.${fileExtension}`;
+          const storageRef = ref(storage, `users/${fileName}`);
+
+          uploadBytes(storageRef, data.image)
+            .then((result) => {
+              updateDoc(docRef, {
+                url: `users/${fileName}`,
+                name: data.fullName,
+                phone: data.phoneNumber,
+                gender: data.gender,
+                birthday: time,
+              }).then(() => {
+                toast.success("Change successfully");
+                setShowModal(false);
+              });
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+        } else {
+          updateDoc(docRef, {
+            name: data.fullName,
+            phone: data.phoneNumber,
+            gender: data.gender,
+            birthday: time,
+          }).then(() => {
+            toast.success("Change successfully");
+            setShowModal(false);
+          });
+        }
+        setIsChange(true);
+      } else {
+        console.log("unchange");
+      }
+    } catch (error) {
+      console.log(error);
     }
-
-    // format date
-    const timeStamp = dateOfBirth.split("-");
-    const newDate = new Date(timeStamp[2], timeStamp[1] - 1, timeStamp[0]);
-
-    // randomID
-    const randomID = generateRandomID();
-
-    const userRef = doc(collection(db, "User"), String(randomID));
-
-    const auth = getAuth();
-
-    // upload image to storage and save link to firestore
-    const fileExtension = data.image.name.split(".").pop();
-    const fileName = `${randomID}.${fileExtension}`;
-    const storageRef = ref(storage, `users/${fileName}`);
-
-    const snapshot = await uploadBytes(storageRef, data.image);
-
-    const serviceId = "service_86f8psq";
-    const templateId = "template_mk2rho9";
-    const publicKey = "BtDf-B_O7lUY_1xB4";
-
-    await createUserWithEmailAndPassword(auth, data.email, password);
-
-    await setDoc(userRef, {
-      name: data.fullName,
-      postion: data.role,
-      phone: data.phoneNumber,
-      last_attendance_time: "",
-      gender: data.gender,
-      email: data.email,
-      birthday: newDate,
-      status: 1,
-      url: snapshot.ref.fullPath,
-      role: "staff",
-      uid: randomID,
-      salary: data.salary,
-    });
-
-    const dataOfEmails = {
-      service_id: serviceId,
-      template_id: templateId,
-      user_id: publicKey,
-      template_params: {
-        user_email: data.email,
-        user_password: password,
-      },
-    };
-
-    // send to email
-    await axios.post(
-      "https://api.emailjs.com/api/v1.0/email/send",
-      dataOfEmails
-    );
-
-    setShowModal(false);
-
-    getAllData();
   };
 
   return (
@@ -156,7 +131,7 @@ const AddEmployeeModal = ({ setShowModal, password, getAllData }) => {
           >
             {data.image ? (
               <img
-                src={URL.createObjectURL(data.image)}
+                src={data.image}
                 style={{ width: "100px", height: "100px", borderRadius: "50%" }}
                 alt=""
               />
@@ -195,35 +170,7 @@ const AddEmployeeModal = ({ setShowModal, password, getAllData }) => {
           <div style={{ padding: "12px" }}>
             <div>
               <label style={{ fontWeight: "bold" }} htmlFor="">
-                Hãy chọn chức vụ hiện tại:
-              </label>
-            </div>
-            <select
-              name="role"
-              value={data.role}
-              onChange={handleDataChange}
-              style={{
-                marginTop: "8px",
-                width: "100%",
-                padding: "4px",
-                border: "1.5px solid",
-                borderRadius: "6px",
-                fontSize: "14px",
-                outline: "none",
-              }}
-              id="position"
-            >
-              <option value="markerting">Markerting</option>
-              <option value="it">IT</option>
-              <option value="content">Content</option>
-              <option value="media">Media</option>
-            </select>
-          </div>
-
-          <div style={{ padding: "12px" }}>
-            <div>
-              <label style={{ fontWeight: "bold" }} htmlFor="">
-                Họ và tên:
+                Name:
               </label>
             </div>
             <input
@@ -240,29 +187,6 @@ const AddEmployeeModal = ({ setShowModal, password, getAllData }) => {
                 outline: "none",
               }}
               type="text"
-            />
-          </div>
-
-          <div style={{ padding: "12px" }}>
-            <div>
-              <label style={{ fontWeight: "bold" }} htmlFor="">
-                Email:
-              </label>
-            </div>
-            <input
-              onChange={handleDataChange}
-              name="email"
-              value={data.email}
-              style={{
-                marginTop: "8px",
-                width: "100%",
-                padding: "4px",
-                border: "1.5px solid",
-                borderRadius: "6px",
-                fontSize: "14px",
-                outline: "none",
-              }}
-              type="email"
             />
           </div>
 
@@ -321,6 +245,7 @@ const AddEmployeeModal = ({ setShowModal, password, getAllData }) => {
                 Date of Birth:
               </label>
             </div>
+
             <DatePicker
               onChange={onChange}
               style={{
@@ -332,52 +257,30 @@ const AddEmployeeModal = ({ setShowModal, password, getAllData }) => {
             />
           </div>
 
-          <div style={{ padding: "12px" }}>
-            <div>
-              <label style={{ fontWeight: "bold" }} htmlFor="">
-                Salary:
-              </label>
-            </div>
-            <input
-              onChange={handleDataChange}
-              name="salary"
-              value={data.salary}
-              style={{
-                marginTop: "8px",
-                width: "100%",
-                padding: "4px",
-                border: "1.5px solid",
-                borderRadius: "6px",
-                fontSize: "14px",
-                outline: "none",
-              }}
-            />
-          </div>
-
-          <div style={{ padding: "12px" }}>
-            <div>
-              <label style={{ fontWeight: "bold" }} htmlFor="">
-                Password (auto create):
-              </label>
-            </div>
-            <input
-              value={password}
-              style={{
-                marginTop: "8px",
-                width: "100%",
-                padding: "4px",
-                border: "1.5px solid",
-                borderRadius: "6px",
-                fontSize: "14px",
-                outline: "none",
-              }}
-              readOnly
-            />
-          </div>
-
           <div style={{ marginTop: "16px", textAlign: "center" }}>
             <button
               type="submit"
+              onClick={() => {
+                setShowModal(false);
+              }}
+              style={{
+                padding: "8px 24px",
+                outline: "none",
+                fontSize: "16px",
+                fontWeight: "bold",
+                borderRadius: "10px",
+                color: "#999999",
+                backgroundColor: "#D9D9D9",
+                cursor: "pointer",
+                border: "none",
+                marginRight: "8px",
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              onClick={handleSubmitForm}
               style={{
                 padding: "8px 24px",
                 outline: "none",
@@ -388,6 +291,7 @@ const AddEmployeeModal = ({ setShowModal, password, getAllData }) => {
                 backgroundColor: "rgb(30, 133, 241)",
                 cursor: "pointer",
                 border: "none",
+                marginLeft: "8px",
               }}
             >
               Submit
@@ -399,4 +303,4 @@ const AddEmployeeModal = ({ setShowModal, password, getAllData }) => {
   );
 };
 
-export default AddEmployeeModal;
+export default EditEmployeeModal;

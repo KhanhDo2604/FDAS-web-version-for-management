@@ -4,6 +4,7 @@ import { RiLockPasswordFill } from "react-icons/ri";
 import { MdArrowForwardIos } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import { UserAuth } from "../../components/hooks/useAuth";
+import { toast } from "react-toastify";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -125,11 +126,19 @@ const Login = () => {
               }}
               onClick={(e) => {
                 e.preventDefault();
-                logIn(email, password).then((role) => {
-                  if (role === "staff") {
-                    navigate("/manageinfo");
-                  } else if (role === "admin") {
-                    navigate("/");
+                logIn(email, password).then((user) => {
+                  if (user === undefined) {
+                    toast.error("Login failed");
+                  } else {
+                    if (user["status"] === 0) {
+                      if (user["role"] === "staff") {
+                        navigate("/manageinfo");
+                      } else if (user["role"] === "admin") {
+                        navigate("/");
+                      }
+                    } else {
+                      toast.error("Cannot login");
+                    }
                   }
                 });
               }}

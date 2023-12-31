@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { FaPhone } from "react-icons/fa6";
 import { FaTransgender, FaBirthdayCake } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
@@ -9,16 +9,170 @@ import { RiErrorWarningLine } from "react-icons/ri";
 import { UserAuth } from "../../components/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import UserHeader from "../../components/layout/UserHeader";
+import {
+  collection,
+  doc,
+  getCountFromServer,
+  getDoc,
+  getDocs,
+  query,
+  where,
+} from "firebase/firestore";
+import { db } from "../../firebase";
+import moment from "moment";
+import useUserImage from "../../components/hooks/UseUserImage";
+import { startOfMonth, endOfMonth } from "date-fns";
+import EditEmployeeModal from "../../components/modal/EditEmployeeModal";
 
 const ManageInfo = () => {
-  const onChange = (date, dateString) => {
-    console.log(date, dateString);
+  const [ischeck, setIsCheck] = useState(false);
+  const [attendanceRecord, setAttendanceRecord] = useState([]);
+  const [date, setDate] = useState(new Date());
+  const { user, setUser } = UserAuth();
+  const url = useUserImage(user);
+  const [isChange, setIsChange] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+
+  const [avgTime, setAvgTime] = useState("");
+  const [late, setLate] = useState(0);
+  const [absent, setAbsent] = useState(0);
+
+  const dateObject = moment(date);
+
+  const onChange = (date) => {
+    setDate(date ? date.toDate() : new Date());
+    setIsCheck(true);
+  };
+
+  async function getAttendanceRecord(monthCurrent, yearCurrent) {
+    try {
+      const userAttendanceRecordRef = collection(
+        db,
+        `User/${user.uid}/AttendanceRecord`
+      );
+
+      const startOfCurrentMonth = startOfMonth(
+        new Date(yearCurrent, monthCurrent - 1)
+      );
+      const endOfCurrentMonth = endOfMonth(
+        new Date(yearCurrent, monthCurrent - 1)
+      );
+
+      const timeQuery = query(
+        userAttendanceRecordRef,
+        where("time", ">=", startOfCurrentMonth),
+        where("time", "<=", endOfCurrentMonth)
+      );
+
+      const querySnapshot = await getDocs(timeQuery);
+      const records = querySnapshot.docs.map((doc) => doc.data());
+
+      setAttendanceRecord(records);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  const handleShowModal = () => {
+    setShowModal(true);
+  };
+
+  const reload = (result) => {
+    setUser(result); //sai
+  };
+
+  useEffect(() => {
+    if (isChange) {
+      const docRef = collection(db, "User");
+      const q = query(docRef, where("email", "==", user.email));
+      getDocs(q)
+        .then((result) => {
+          // setUser(prev => ({...prev, result: result.docs[0].data()}))
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  }, [isChange]);
+
+  //Lấy danh sách điểm danh của cá nhân
+  useEffect(() => {
+    getAttendanceRecord(dateObject.month() + 1, date.getFullYear());
+  }, [ischeck]);
+
+  useEffect(() => {
+    countLateAndAbsentAndtime(
+      attendanceRecord,
+      dateObject.month() + 1,
+      date.getFullYear()
+    );
+  }, [attendanceRecord, ischeck]);
+
+  const countLateAndAbsentAndtime = async (data, month, year) => {
+    //Ghép cách tính absent
+    //Sau khi chỉnh sửa thông tin thì reload lại
+    try {
+      let totalLate = 0;
+      let totalMinutes = 0;
+
+      data.forEach((record) => {
+        // Trường hợp late
+        if (record.status === 2) {
+          totalLate++;
+        }
+
+        //Tính tổng thời gian
+        totalMinutes +=
+          record.time.toDate().getHours() * 60 +
+          record.time.toDate().getMinutes();
+      });
+
+      const recordCount = data.length;
+      const avgMinutes = recordCount > 0 ? totalMinutes / recordCount : 0;
+
+      // Chuyển đổi thời gian trung bình thành giờ và phút
+      const avgHours = Math.floor(avgMinutes / 60);
+      const avgMinutesRemainder = Math.floor(avgMinutes % 60);
+
+      const formattedAvgTime = `${String(avgHours).padStart(2, "0")}:${String(
+        avgMinutesRemainder
+      ).padStart(2, "0")}`;
+
+      setAvgTime(formattedAvgTime);
+      setLate(totalLate);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  //format tháng
+  const formatDate = (timestamp) => {
+    const date = timestamp.toDate();
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
+  //format ngày
+  const formatTime = (timestamp) => {
+    const currentDate = timestamp.toDate();
+    const hours = currentDate.getHours().toString().padStart(2, "0");
+    const minutes = currentDate.getMinutes().toString().padStart(2, "0");
+    return `${hours}:${minutes}`;
   };
 
   return (
     <>
       <UserHeader />
-      <div style={{ display: "flex", padding: "25px", gap: "40px" }}>
+      <div
+        style={{
+          display: "flex",
+          padding: "25px",
+          gap: "40px",
+          position: "relative",
+        }}
+      >
         <div style={{ width: "40%" }}>
           <div
             style={{
@@ -28,28 +182,6 @@ const ManageInfo = () => {
               marginBottom: "20px",
             }}
           >
-            <div
-              style={{
-                textAlign: "right",
-                display: "flex",
-                justifyContent: "end",
-              }}
-            >
-              <p
-                style={{
-                  border: "1px solid #00d000",
-                  color: "#00d000",
-                  fontWeight: "600",
-                  padding: "3px 17px",
-                  borderRadius: "20px",
-                  fontSize: "13px",
-                  backgroundColor: "#d7ffd7",
-                }}
-              >
-                On time
-              </p>
-            </div>
-
             <div
               style={{
                 display: "flex",
@@ -66,12 +198,7 @@ const ManageInfo = () => {
                   height: "100px",
                   border: "1px solid #cacaca",
                 }}
-                src={
-                  <img
-                    src="https://upload.wikimedia.org/wikipedia/en/thumb/e/e2/IMG_Academy_Logo.svg/640px-IMG_Academy_Logo.svg.png"
-                    alt="avatar"
-                  />
-                }
+                src={<img src={url} alt="avatar" />}
               />
               <p
                 style={{
@@ -79,16 +206,17 @@ const ManageInfo = () => {
                   fontWeight: "600",
                 }}
               >
-                Đỗ Phạm Huy Khánh
+                {user.name}
               </p>
               <div
                 style={{
                   fontSize: "16px",
                 }}
               >
-                Nhân viên ...
+                {user.role} {user.position}
               </div>
               <Button
+                onClick={handleShowModal}
                 style={{
                   backgroundColor: "#f1f1f1",
                   padding: "4px 30px",
@@ -98,6 +226,7 @@ const ManageInfo = () => {
               </Button>
             </div>
 
+            {/* Bảng thông tin */}
             <div className="individual-detail">
               <div
                 className="detail-container"
@@ -105,14 +234,14 @@ const ManageInfo = () => {
                   display: "flex",
                   gap: "5px",
                   padding: "0px 15px",
-                  margin: "8px 0"
+                  margin: "8px 0",
                 }}
               >
                 <FaPhone style={{ width: "16px", height: "16px" }} />
                 <p>
                   Phone Number:{" "}
                   <span style={{ fontWeight: "600", fontSize: "15px" }}>
-                    0886667068
+                    {user.phone}
                   </span>
                 </p>
               </div>
@@ -123,14 +252,14 @@ const ManageInfo = () => {
                   display: "flex",
                   gap: "5px",
                   padding: "0px 15px",
-                  margin: "8px 0"
+                  margin: "8px 0",
                 }}
               >
                 <FaTransgender style={{ width: "16px", height: "16px" }} />
                 <p>
                   Gender:{" "}
                   <span style={{ fontWeight: "600", fontSize: "15px" }}>
-                    Male
+                    {user.gender}
                   </span>
                 </p>
               </div>
@@ -141,14 +270,14 @@ const ManageInfo = () => {
                   display: "flex",
                   gap: "5px",
                   padding: "0px 15px",
-                  margin: "8px 0"
+                  margin: "8px 0",
                 }}
               >
                 <FaBirthdayCake style={{ width: "16px", height: "16px" }} />
                 <p>
                   Birthday:{" "}
                   <span style={{ fontWeight: "600", fontSize: "15px" }}>
-                    26/04/2002
+                    {formatDate(user.birthday)}
                   </span>
                 </p>
               </div>
@@ -159,20 +288,21 @@ const ManageInfo = () => {
                   display: "flex",
                   gap: "5px",
                   padding: "0px 15px",
-                  margin: "8px 0"
+                  margin: "8px 0",
                 }}
               >
                 <MdEmail style={{ width: "16px", height: "16px" }} />
                 <p>
                   Email:{" "}
                   <span style={{ fontWeight: "600", fontSize: "15px" }}>
-                    khanhdph2604@gmail.com
+                    {user.email}
                   </span>
                 </p>
               </div>
             </div>
           </div>
 
+          {/* Bảng Alert */}
           <div
             className="left__notice"
             style={{
@@ -250,7 +380,11 @@ const ManageInfo = () => {
               textAlign: "center",
             }}
           >
-            <DatePicker className="css-dev-only-do-not-override-p7e5j5" onChange={onChange} />
+            <DatePicker
+              className="css-dev-only-do-not-override-p7e5j5"
+              picker="month"
+              onChange={onChange}
+            />
           </div>
 
           <div
@@ -258,6 +392,7 @@ const ManageInfo = () => {
               padding: "20px",
             }}
           >
+            {/* avg here */}
             <div
               className="right-display"
               style={{
@@ -283,7 +418,9 @@ const ManageInfo = () => {
                     marginLeft: "10px",
                   }}
                 >
-                  <p style={{ fontWeight: "600", textAlign: "start" }}>08:24</p>
+                  <p style={{ fontWeight: "600", textAlign: "start" }}>
+                    {avgTime}
+                  </p>
                   <p>Avg check in</p>
                 </div>
               </div>
@@ -305,7 +442,9 @@ const ManageInfo = () => {
                     marginLeft: "10px",
                   }}
                 >
-                  <p style={{ fontWeight: "600", textAlign: "start" }}>03</p>
+                  <p style={{ fontWeight: "600", textAlign: "start" }}>
+                    {late}
+                  </p>
                   <p>Late</p>
                 </div>
               </div>
@@ -361,40 +500,10 @@ const ManageInfo = () => {
                 </p>
               </div>
 
-              <div
-                className="list-item"
-                style={{
-                  display: "flex",
-                  marginTop: "15px",
-                  padding: "5px 10px",
-                }}
-              >
-                <p style={{ width: "40%" }} className="list-title-date">
-                  02/12/2023
-                </p>
-                <p style={{ width: "30%" }} className="list-checkin">
-                  7:00 am
-                </p>
-
-                <div className="individual-status">
-                  <p
-                    style={{
-                      border: "1px solid #00,000",
-                      color: "#00d000",
-                      fontWeight: "600",
-                      padding: "3px 17px",
-                      borderRadius: "20px",
-                      fontSize: "13px",
-                      backgroundColor: "#d7ffd7",
-                    }}
-                  >
-                    On time
-                  </p>
-                </div>
-              </div>
-
-              <div>
+              {/* Load list here */}
+              {attendanceRecord.map((value, index) => (
                 <div
+                  key={index}
                   className="list-item"
                   style={{
                     display: "flex",
@@ -403,31 +512,54 @@ const ManageInfo = () => {
                   }}
                 >
                   <p style={{ width: "40%" }} className="list-title-date">
-                    02/12/2023
+                    {formatDate(value.time)}
                   </p>
                   <p style={{ width: "30%" }} className="list-checkin">
-                    7:00 am
+                    {formatTime(value.time)}
                   </p>
 
-                  <p
-                    className="status-absent"
-                    style={{
-                      border: "1px solid #8d8d8d",
-                      color: "#8d8d8d",
-                      fontWeight: "600",
-                      padding: "3px 17px",
-                      borderRadius: "20px",
-                      fontSize: "13px",
-                      backgroundColor: "#e2e5e2",
-                    }}
-                  >
-                    Absent
-                  </p>
+                  <div className="individual-status">
+                    <p
+                      style={{
+                        border: "1px solid #00,000",
+                        color: value.status == 1 ? "#5DA969" : "#E4644B",
+                        fontWeight: "600",
+                        padding: "3px 17px",
+                        borderRadius: "20px",
+                        fontSize: "13px",
+                        backgroundColor:
+                          value.status == 1 ? "#CCF5D2" : "#FDD2CC",
+                      }}
+                    >
+                      {value.status == 1 ? "On time" : "Late"}
+                    </p>
+                  </div>
                 </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>
+
+        {showModal && (
+          <div
+            onClick={() => setShowModal(false)}
+            style={{
+              backgroundColor: "rgba(0,0,0,0.4)",
+              width: "100%",
+              height: "100vh",
+              position: "absolute",
+              top: 0,
+              left: 0,
+            }}
+          ></div>
+        )}
+        {showModal && (
+          <EditEmployeeModal
+            setShowModal={setShowModal}
+            user={user}
+            setIsChange={setIsChange}
+          />
+        )}
       </div>
     </>
   );

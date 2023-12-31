@@ -28,9 +28,9 @@ export const AuthContextProvider = ({ children }) => {
           if (!docsSnap.empty) {
             setUser(docsSnap.docs[0].data());
           } else {
-            console.log('No such document!');
+            return undefined;
           }
-          return docsSnap.docs[0].data()['role'];
+          return docsSnap.docs[0].data();
         }
       })
       .catch((error) => {
