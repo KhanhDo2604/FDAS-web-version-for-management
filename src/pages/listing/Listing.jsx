@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import PaginatedTable from '../../components/tables/PaginatedTable ';
+import PaginatedTable from '../../components/tables/PaginatedTable';
 import { generatePassword } from '../../helpers';
 import { collection, getDocs, query } from 'firebase/firestore';
 import { db } from '../../firebase';
@@ -40,7 +40,7 @@ const Listing = () => {
                 </div>
                 <button onClick={handleShowModal} style={{ backgroundColor: "#1E85F1", color: "#fff", borderRadius: "10px", padding: "12px 20px", border: "none", fontWeight: "bold", height: "40px", cursor: "pointer" }}>Add Employee</button>
             </div>
-            <PaginatedTable listMember={listStaff} itemPerpage={6} layout={2} />
+            <PaginatedTable listMember={listStaff} setListStaff={setListStaff} itemPerpage={6} layout={2} />
             {showModal && <div onClick={() => setShowModal(false)} style={{ backgroundColor: "rgba(0,0,0,0.4)", width: "100%", height: "100vh", position: "absolute", top: 0, left: 0 }}></div>}
             {showModal && <AddEmployeeModal setShowModal={setShowModal} password={password} getAllData={getAllData} />}
         </div>

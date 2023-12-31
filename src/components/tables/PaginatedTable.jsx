@@ -7,24 +7,26 @@ import { FiDownload } from "react-icons/fi";
 import DeductionModal from "../modal/DeductionModal";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase";
+import { combineLists, formatNumber } from "../../helpers";
 
 const PaginatedTable = ({
   listMember,
   countAttendanceRecord,
   itemPerpage,
   layout = 1,
+  setListStaff
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isModal, setIsModal] = useState(false);
-
   const [itemOffset, setItemOffset] = useState(0);
   const [company, setCompany] = useState({});
   const [dropdownVisible, setDropdownVisible] = useState(false);
-
   const options = [0, 1];
-
-  const toggleDropdown = () => {
-    setDropdownVisible(!dropdownVisible);
+  const toggleDropdown = (uid) => {
+    setDropdownVisible((prevState) => ({
+      ...prevState,
+      [uid]: !prevState[uid],
+    }));
   };
 
   const filteredList = listMember?.filter((item) => {
@@ -32,7 +34,6 @@ const PaginatedTable = ({
       return item.name.toLowerCase().includes(searchQuery.toLowerCase());
     }
   });
-
   const endOffset = itemOffset + itemPerpage;
   const currentItems = filteredList.slice(itemOffset, endOffset);
   const pageCount = Math.ceil(filteredList.length / itemPerpage);
@@ -50,23 +51,33 @@ const PaginatedTable = ({
   //Thay đổi status nhân viên 
   const handleChangeStatus = (id, userStatus) => {
     let docRef = doc(db, "User", id.toString());
-    //Làm sao để refresh lại page ?
+    const newData = [...listMember].map(e => {
+      if (+e.id == id) {
+        return {
+          ...e,
+          status: e.status == 1 ? 0 : 1
+        }
+      } return e
+    })
+    setListStaff([...newData])
+
     updateDoc(docRef, {
       status: userStatus === 1 ? 0 : 1,
     }).then(() => {
-      console.log("success");
-    });
+      console.log("111 cái này fetch lại data nè");
+    }).catch((error) => console.log(error))
   };
 
   //Thay đổi mặt để nhận dạng
-  const handleChangeFace = () => {};
+  const handleChangeFace = () => { };
 
   // EXPORT DATA TO EXCEL
-  const handleOnExport = () => {
-    // const wb = XLSX.utils.book_new()
-    // const ws = XLSX.utils.json_to_sheet(listMember)
-    // XLSX.utils.book_append_sheet(wb, ws, "MySheet1")
-    // XLSX.writeFile(wb, "MyExcel.xlsx")
+  const handleOnExport = async () => {
+    const combined = combineLists(listMember, countAttendanceRecord, company, layout);
+    const wb = XLSX.utils.book_new()
+    const ws = XLSX.utils.json_to_sheet(combined)
+    XLSX.utils.book_append_sheet(wb, ws, "MySheet1")
+    XLSX.writeFile(wb, "Attendance Record.xlsx")
   };
 
   const handleOpenModal = () => {
@@ -305,15 +316,37 @@ const PaginatedTable = ({
           </thead>
           <tbody>
             {currentItems?.map((value, index) => {
-              let deduction =
-                layout === 1 &&
-                value.salary *
-                  ((countAttendanceRecord[value.uid]?.absent *
-                    company.absent_rate) /
-                    100 +
-                    (countAttendanceRecord[value.uid]?.late *
-                      company.late_rate) /
-                      100);
+              let deduction = layout === 1 && value.salary * ((countAttendanceRecord[value.uid]?.absent * company.absent_rate) / 100 + (countAttendanceRecord[value.uid]?.late * company.late_rate) / 100);
+
+              let formattedDate = '------';
+              let formattedTime = '------';
+              let status = '------';
+
+              if (layout === 3) {
+                const userData = countAttendanceRecord[value.uid] || {};
+                const dailyRecords = userData.dailyRecords || {};
+                const timeData = dailyRecords.time || {};
+                const timestamp = timeData.seconds ? timeData.seconds * 1000 : null;
+
+                if (timestamp) {
+                  const dateObject = new Date(timestamp);
+
+                  if (!isNaN(dateObject.getTime())) {
+                    formattedTime = dateObject.toLocaleTimeString('en-US', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      second: '2-digit',
+                      hour12: true
+                    });
+
+                    const day = dateObject.getDate();
+                    const month = dateObject.getMonth() + 1;
+                    const year = dateObject.getFullYear();
+                    formattedDate = `${day}/${month}/${year}`;
+                    status = dailyRecords.status;
+                  }
+                }
+              }
               return (
                 <tr key={index}>
                   <td
@@ -378,7 +411,7 @@ const PaginatedTable = ({
                           fontWeight: "bold",
                         }}
                       >
-                        {deduction ? deduction : 0}
+                        {deduction ? formatNumber(deduction) : 0}
                       </td>
                       <td
                         style={{
@@ -390,8 +423,8 @@ const PaginatedTable = ({
                         }}
                       >
                         {deduction
-                          ? Math.max(0, value.salary - deduction)
-                          : value.salary}
+                          ? formatNumber(Math.max(0, value.salary - deduction))
+                          : formatNumber(value.salary)}
                       </td>
                     </>
                   ) : layout === 2 ? (
@@ -432,8 +465,6 @@ const PaginatedTable = ({
                         >
                           {value.status === 1 ? "Active" : "Deactive"}
                         </p>
-
-                        {/* Nút 3 chấm */}
                         <div
                           style={{
                             position: "relative",
@@ -441,12 +472,12 @@ const PaginatedTable = ({
                           }}
                         >
                           <img
-                            onClick={toggleDropdown}
+                            onClick={() => toggleDropdown(value.uid)}
                             src="/Options.png"
                             alt=""
                             style={{ width: "24px", cursor: "pointer" }}
                           />
-                          {dropdownVisible && (
+                          {dropdownVisible[value.uid] && (
                             <ul
                               style={{
                                 display: "block",
@@ -474,7 +505,7 @@ const PaginatedTable = ({
                                     transition: "background-color 0.3s",
                                   }}
                                 >
-                                  Activate
+                                  Dectivate
                                 </li>
                               ) : (
                                 options.map((option, index) => (
@@ -484,9 +515,9 @@ const PaginatedTable = ({
                                       option === 0
                                         ? handleChangeFace()
                                         : handleChangeStatus(
-                                            value.uid,
-                                            value.status
-                                          )
+                                          value.uid,
+                                          value.status
+                                        )
                                     }
                                     style={{
                                       padding: "8px",
@@ -497,8 +528,8 @@ const PaginatedTable = ({
                                     {option === 0
                                       ? "Change face recognize"
                                       : value.status === 1
-                                      ? "Deactivate"
-                                      : "Activate"}
+                                        ? "Deactivate"
+                                        : "Activate"}
                                   </li>
                                 ))
                               )}
@@ -508,7 +539,65 @@ const PaginatedTable = ({
                       </td>
                     </>
                   ) : (
-                    <></>
+                    <>
+                      <td
+                        style={{
+                          border: "1px solid #ddd",
+                          padding: "16px",
+                          textAlign: "center",
+                        }}
+                      >
+                        {formattedDate}
+                      </td>
+                      <td
+                        style={{
+                          border: "1px solid #ddd",
+                          padding: "16px",
+                          textAlign: "center",
+                        }}
+                      >
+                        {formattedTime}
+                      </td>
+                      <td
+                        style={{
+                          border: "1px solid #ddd",
+                          padding: "16px",
+                          textAlign: "center",
+                        }}
+                      >
+                        <span
+                          style={{
+                            display: "inline-block",
+                            minWidth: "100px",
+                            textAlign: "center",
+                            ...(
+                              status === 1
+                                ? {
+                                  border: "1px solid #5DA969",
+                                  backgroundColor: "rgba(204, 245, 210, 0.50)",
+                                  color: "#5DA969",
+                                }
+                                : status === 2
+                                  ? {
+                                    border: "1px solid #E4644B",
+                                    backgroundColor: "rgba(253, 210, 204, 0.50)",
+                                    color: "#E4644B",
+                                  }
+                                  : {
+                                    border: "1px solid #999999",
+                                    backgroundColor: "rgba(217, 217, 218, 0.50)",
+                                    color: "#999999",
+                                  }
+                            ),
+                            borderRadius: "20px",
+                            padding: "4px 12px",
+                          }}
+                        >
+                          {status === 1 ? "On Time" : status === 2 ? "Late" : "Absent"}
+                        </span>
+                      </td>
+
+                    </>
                   )}
                 </tr>
               );
