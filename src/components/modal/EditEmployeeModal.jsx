@@ -54,7 +54,7 @@ const EditEmployeeModal = ({ setShowModal, user, setIsChange }) => {
         data.phoneNumber !== user.phone ||
         data.gender !== user.gender ||
         dateOfBirth !==
-          new Date(user.birthday.seconds).toLocaleDateString("en-US")
+        new Date(user.birthday.seconds).toLocaleDateString("en-US")
       ) {
         if (isImage) {
           const fileExtension = data.image.name.split(".").pop();
