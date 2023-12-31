@@ -39,7 +39,7 @@ export const AuthContextProvider = ({ children }) => {
         console.log(errorCode, errorMessage);
       });
 
-  return <AuthContext.Provider value={{ user, logOut, logIn }}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={{ user, logOut, logIn, setUser }}>{children}</AuthContext.Provider>;
 };
 
 export const UserAuth = () => {

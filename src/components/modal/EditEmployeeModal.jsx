@@ -6,7 +6,7 @@ import { db, storage } from "../../firebase";
 import { ref, uploadBytes } from "firebase/storage";
 import { toast } from "react-toastify";
 
-const EditEmployeeModal = ({ setShowModal, user, setIsChange }) => {
+const EditEmployeeModal = ({ setShowModal, user, setUser }) => {
   const imageRef = useRef();
   const form = useRef();
 
@@ -61,15 +61,18 @@ const EditEmployeeModal = ({ setShowModal, user, setIsChange }) => {
           const fileName = `${user.uid}.${fileExtension}`;
           const storageRef = ref(storage, `users/${fileName}`);
 
+          let newData = {
+            url: `users/${fileName}`,
+            name: data.fullName,
+            phone: data.phoneNumber,
+            gender: data.gender,
+            birthday: time,
+          };
+
           uploadBytes(storageRef, data.image)
             .then((result) => {
-              updateDoc(docRef, {
-                url: `users/${fileName}`,
-                name: data.fullName,
-                phone: data.phoneNumber,
-                gender: data.gender,
-                birthday: time,
-              }).then(() => {
+              updateDoc(docRef, newData).then(() => {
+                setUser(newData)
                 toast.success("Change successfully");
                 setShowModal(false);
               });
@@ -78,17 +81,18 @@ const EditEmployeeModal = ({ setShowModal, user, setIsChange }) => {
               console.log(err);
             });
         } else {
-          updateDoc(docRef, {
+          let newData = {
             name: data.fullName,
             phone: data.phoneNumber,
             gender: data.gender,
             birthday: time,
-          }).then(() => {
+          };
+          updateDoc(docRef, newData).then(() => {
+            setUser(newData);
             toast.success("Change successfully");
             setShowModal(false);
           });
         }
-        setIsChange(true);
       } else {
         console.log("unchange");
       }

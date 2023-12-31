@@ -30,7 +30,6 @@ const ManageInfo = () => {
   const [date, setDate] = useState(new Date());
   const { user, setUser } = UserAuth();
   const url = useUserImage(user);
-  const [isChange, setIsChange] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
   const [avgTime, setAvgTime] = useState("");
@@ -76,24 +75,6 @@ const ManageInfo = () => {
   const handleShowModal = () => {
     setShowModal(true);
   };
-
-  const reload = (result) => {
-    setUser(result); //sai
-  };
-
-  useEffect(() => {
-    if (isChange) {
-      const docRef = collection(db, "User");
-      const q = query(docRef, where("email", "==", user.email));
-      getDocs(q)
-        .then((result) => {
-          // setUser(prev => ({...prev, result: result.docs[0].data()}))
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    }
-  }, [isChange]);
 
   //Lấy danh sách điểm danh của cá nhân
   useEffect(() => {
@@ -147,19 +128,21 @@ const ManageInfo = () => {
 
   //format tháng
   const formatDate = (timestamp) => {
-    const date = timestamp.toDate();
-    const day = date.getDate().toString().padStart(2, "0");
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
+    // const date = timestamp.toDate();
+    // const day = date.getDate().toString().padStart(2, "0");
+    // const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    // const year = date.getFullYear();
+    // return `${day}/${month}/${year}`;
+    return "";
   };
 
   //format ngày
   const formatTime = (timestamp) => {
-    const currentDate = timestamp.toDate();
-    const hours = currentDate.getHours().toString().padStart(2, "0");
-    const minutes = currentDate.getMinutes().toString().padStart(2, "0");
-    return `${hours}:${minutes}`;
+    // const currentDate = timestamp.toDate();
+    // const hours = currentDate.getHours().toString().padStart(2, "0");
+    // const minutes = currentDate.getMinutes().toString().padStart(2, "0");
+    // return `${hours}:${minutes}`;
+    return "";
   };
 
   return (
@@ -277,7 +260,7 @@ const ManageInfo = () => {
                 <p>
                   Birthday:{" "}
                   <span style={{ fontWeight: "600", fontSize: "15px" }}>
-                    {formatDate(user.birthday)}
+                    {user.birthday ? formatDate(user.birthday) : null}
                   </span>
                 </p>
               </div>
@@ -512,10 +495,10 @@ const ManageInfo = () => {
                   }}
                 >
                   <p style={{ width: "40%" }} className="list-title-date">
-                    {formatDate(value.time)}
+                    {value.time ? formatDate(value.time) : null}
                   </p>
                   <p style={{ width: "30%" }} className="list-checkin">
-                    {formatTime(value.time)}
+                    {value.time ? formatTime(value.time) : null}
                   </p>
 
                   <div className="individual-status">
@@ -557,7 +540,7 @@ const ManageInfo = () => {
           <EditEmployeeModal
             setShowModal={setShowModal}
             user={user}
-            setIsChange={setIsChange}
+            setUser={setUser}
           />
         )}
       </div>
