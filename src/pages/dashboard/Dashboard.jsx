@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { DatePicker } from "antd";
-import PaginatedTable from '../../components/tables/PaginatedTable ';
-import { collection, doc, getCountFromServer, getDoc, getDocs, query, where } from 'firebase/firestore';
+import PaginatedTable from '../../components/tables/PaginatedTable';
+import { collection, getCountFromServer, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { Bar } from 'react-chartjs-2';
 import {
@@ -15,6 +15,7 @@ import {
 } from 'chart.js';
 import { getCurrentMonthYear, options } from '../../helpers';
 import moment from 'moment'; // Import moment library
+import { Form } from 'antd';
 
 ChartJS.register(
   CategoryScale,
@@ -41,6 +42,7 @@ const Dashboard = () => {
     maxAbsent: 0,
     staffNameWithMaxAbsent: null,
   });
+
   // Total Late
   const totalLate = lateCounts.reduce((total, count) => total + count, 0)
 
@@ -52,6 +54,10 @@ const Dashboard = () => {
   const [date, setDate] = useState(new Date());
 
   const [day, setDay] = useState(new Date())
+
+  const dayCheck = selected === 'day' && day ? day.getDate() : null;
+
+  const dateObject = moment(date);
 
   // Đếm số lần đi trễ và đúng giờ
   const countLateAndOnTime = (staffData, month, year, day = null) => {
@@ -67,13 +73,10 @@ const Dashboard = () => {
         const attendanceYear = attendanceDate.getFullYear();
         if (attendanceMonth === month && attendanceYear === year) {
           if (selected === 'day' && attendanceDay === day) {
-            console.log(day);
             if (staff.status === 1) {
               onTime[0]++;
-              console.log("111");
             } else if (staff.status === 2) {
               late[0]++;
-              console.log("22");
             }
           } else if (selected === 'month') {
             const dateIndex = attendanceDay - 1; // Chỉ mục của ngày trong mảng
@@ -94,6 +97,7 @@ const Dashboard = () => {
 
   // Tạo dữ liệu cho biểu đồ cho tháng và năm
   const getData = (month, year, day = null) => {
+    // huy coi chỗ truyền
     let labels, lateData, onTimeData;
 
     if (selected === 'day') {
@@ -102,8 +106,9 @@ const Dashboard = () => {
       onTimeData = onTimeCounts
     } else {
       // mode === 'month'
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const daysInMonth = new Date(year, month, 0).getDate();
       labels = Array.from({ length: daysInMonth }, (_, i) => `${i + 1}/${month}`);
+
       lateData = lateCounts;
       onTimeData = onTimeCounts;
     }
@@ -149,7 +154,6 @@ const Dashboard = () => {
     let detailedAttendance = [];
     const attendancePromises = [];
     let listMember = []
-    let lateCounts = {};
 
     for (const doc of querySnapshot.docs) {
       const staffId = doc.id;
@@ -166,9 +170,12 @@ const Dashboard = () => {
             const attendanceDay = attendanceDate.getDate();
             const attendanceMonth = attendanceDate.getMonth() + 1;
             const attendanceYear = attendanceDate.getFullYear();
-
+            if (!staffAttendance[staffId].dailyRecords) {
+              staffAttendance[staffId].dailyRecords = {};
+            }
             if (selected === 'day' && attendanceDay === dayCurrent && attendanceMonth === monthCurrent && attendanceYear === yearCurrent) {
               detailedAttendance.push(data)
+              staffAttendance[staffId].dailyRecords = data;
               if (data.status === 1) {
                 staffAttendance[staffId].onTime++;
               } else if (data.status === 2) {
@@ -228,14 +235,10 @@ const Dashboard = () => {
     });
   }
 
-  const dayCheck = selected === 'day' && day ? day.getDate() : null;
-  const dateObject = moment(date);
-
-
   useEffect(() => {
     if (ischeck) {
       if (selected === "day" && day) {
-        getAttendanceRecord(dateObject.month() + 1, day.getFullYear(), dayCheck);
+        getAttendanceRecord(day.getMonth() + 1, day.getFullYear(), dayCheck);
       } else {
         getAttendanceRecord(dateObject.month() + 1, date.getFullYear());
       }
@@ -244,15 +247,16 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (selected === "day" && day) {
-      countLateAndOnTime(attendanceRecord, dateObject.month() + 1, day.getFullYear(), dayCheck);
+      countLateAndOnTime(attendanceRecord, day.getMonth() + 1, day.getFullYear(), dayCheck);
     } else {
       countLateAndOnTime(attendanceRecord, dateObject.month() + 1, date.getFullYear());
     }
   }, [attendanceRecord, date, day, selected, ischeck]);
 
+
   useEffect(() => {
     if (selected === "day" && day) {
-      setChartData(getData(dateObject.month() + 1, day.getFullYear(), dayCheck));
+      setChartData(getData(day.getMonth() + 1, day.getFullYear(), dayCheck));
     } else {
       setChartData(getData(dateObject.month() + 1, date.getFullYear()));
     }
@@ -269,6 +273,17 @@ const Dashboard = () => {
     getCountStaff()
   }, [])
 
+  const [form] = Form.useForm();
+
+  useEffect(() => {
+    if (selected && ischeck) {
+      form.resetFields();
+      setIsCheck(false)
+      setAttendanceRecord([])
+    }
+  }, [selected])
+
+
   return (
     <div style={{ position: "relative" }}>
       <div style={{ display: "flex", justifyContent: "space-between", padding: "20px" }}>
@@ -281,17 +296,23 @@ const Dashboard = () => {
             <select onClick={(e) => {
               setSelected(e.target.value)
 
+
             }} style={{ width: "140px", height: "36px", borderRadius: "10px", borderColor: "#d9d9d9" }} name="date" id="date">
               <option value="month">Month</option>
               <option value="day">Day</option>
             </select>
           </div>
           <div>
-            {selected === "month" ? (
-              <DatePicker picker="month" onChange={handleDateChange} />
-            ) : (
-              <DatePicker picker='date' onChange={handleDayChange} />
-            )}
+
+            <Form form={form} name="control-hooks">
+              <Form.Item name={selected}>
+                {selected === 'month' ? (
+                  <DatePicker picker="month" onChange={handleDateChange} />
+                ) : (
+                  <DatePicker picker="date" onChange={handleDayChange} />
+                )}
+              </Form.Item>
+            </Form>
           </div>
         </div>
       </div>
@@ -302,20 +323,21 @@ const Dashboard = () => {
             <div style={{ border: "1px solid #D9D9D9", borderRadius: "20px", padding: "12px", display: "flex", flexDirection: "column", gap: "12px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", fontWeight: "bold" }}>
                 <h3>Late employee</h3>
-                <p style={{ display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px" }}> {totalLate} {selected !== "month" && <span>/12</span>}</p>
+                <p style={{ display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px" }}> {totalLate} {selected !== "month" && <span>/{listMember.length}</span>}</p>
               </div>
               <div className='late'>
                 {selected !== "month" &&
-                  <progress id="late" value={4} max="100" style={{ width: "100%", borderRadius: "10px", height: "8px" }}></progress>}
+                  <progress id="late" value={totalLate} max="100" style={{ width: "100%", borderRadius: "10px", height: "8px" }}></progress>}
               </div>
             </div>
             <div style={{ border: "1px solid #D9D9D9", borderRadius: "20px", padding: "12px", display: "flex", flexDirection: "column", gap: "12px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", fontWeight: "bold" }}>
                 <h3>Absent employee</h3>
-                <p style={{ display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px" }}>{totalAbsent} {selected !== "month" && <span>/12</span>}</p>
+                <p style={{ display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px" }}>{totalAbsent} {selected !== "month" && <span>/{listMember.length}</span>}</p>
               </div>
               <div className='absent'>
-                {selected !== "month" && <progress id="absent" value="32" max="100" style={{ width: "100%" }}></progress>}
+                {selected !== "month" &&
+                  <progress id="absent" value={totalAbsent} max="100" style={{ width: "100%", borderRadius: "10px", height: "8px" }}></progress>}
               </div>
             </div>
             <div style={{ display: "flex", flexDirection: "row", gap: "32px", alignItems: "center" }}>
@@ -345,9 +367,10 @@ const Dashboard = () => {
       <div>
       </div>
       {selected === "month" ?
-        <PaginatedTable listMember={listMember} countAttendanceRecord={countAttendanceRecord} itemPerpage={6} layout={1} /> :
-        <PaginatedTable listMember={listMember} itemPerpage={6} layout={3} />
+        <PaginatedTable listMember={listMember} setListMember={setListMember} countAttendanceRecord={countAttendanceRecord} itemPerpage={6} layout={1} /> :
+        <PaginatedTable listMember={listMember} countAttendanceRecord={countAttendanceRecord} itemPerpage={6} layout={3} />
       }
+
     </div>
   )
 }

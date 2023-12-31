@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { DatePicker } from "antd";
-import PaginatedTable from '../../components/tables/PaginatedTable ';
+import PaginatedTable from '../../components/tables/PaginatedTable';
 import { collection, doc, getCountFromServer, getDoc, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { Bar } from 'react-chartjs-2';

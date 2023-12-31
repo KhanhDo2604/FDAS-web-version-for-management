@@ -52,3 +52,37 @@ export function matchesDate(timestamp, day, month, year) {
   const date = new Date(timestamp.seconds * 1000);
   return date.getDate() === day && date.getMonth() === month && date.getFullYear() === year;
 }
+
+export const formatNumber = (number) => {
+  return number.toLocaleString('en-US', {
+    minimumFractionDigits: 3,
+    maximumFractionDigits: 3,
+  });
+};
+
+export const combineLists = (listMembers, countAttendanceRecord, company, layout = 1) => {
+  return listMembers.map((member) => {
+    const attendanceRecord = countAttendanceRecord[member.uid];
+    let deduction = 0;
+    let total = member.salary;
+
+    if (attendanceRecord) {
+      deduction = formatNumber(
+        member.salary *
+          ((attendanceRecord.absent * company.absent_rate) / 100 +
+            (attendanceRecord.late * company.late_rate) / 100)
+      );
+      total = formatNumber(Math.max(0, member.salary - deduction));
+    }
+
+    return {
+      id: member.uid,
+      name: member.name,
+      role: member.role,
+      absent: attendanceRecord ? attendanceRecord.absent : 0,
+      late: attendanceRecord ? attendanceRecord.late : 0,
+      deduction,
+      total,
+    };
+  });
+};
