@@ -1,5 +1,5 @@
-import { signOut } from 'firebase/auth';
-import { createContext, useContext, useState } from 'react';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { auth, db } from '../../firebase';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { signInWithEmailAndPassword } from 'firebase/auth';
@@ -8,6 +8,7 @@ const AuthContext = createContext();
 
 export const AuthContextProvider = ({ children }) => {
   const [user, setUser] = useState({});
+  const [authenticating, setAuthenticating] = useState(true);
 
   // logout
   const logOut = () => {
@@ -16,6 +17,18 @@ export const AuthContextProvider = ({ children }) => {
         setUser(null);
       })
       .catch((err) => { });
+  };
+
+  const fetchUserData = async (email) => {
+    const docRef = collection(db, 'User');
+    const q = query(docRef, where('email', '==', email));
+    const docsSnap = await getDocs(q);
+    if (!docsSnap.empty) {
+      return docsSnap.docs[0].data();
+    } else {
+      console.log('No such document!');
+      return null;
+    }
   };
 
   const logIn = (email, password) =>
@@ -28,9 +41,9 @@ export const AuthContextProvider = ({ children }) => {
           if (!docsSnap.empty) {
             setUser(docsSnap.docs[0].data());
           } else {
-            return undefined;
+            console.log('No such document!');
           }
-          return docsSnap.docs[0].data();
+          return docsSnap.docs[0].data()['role'];
         }
       })
       .catch((error) => {
@@ -39,7 +52,22 @@ export const AuthContextProvider = ({ children }) => {
         console.log(errorCode, errorMessage);
       });
 
-  return <AuthContext.Provider value={{ user, logOut, logIn, setUser }}>{children}</AuthContext.Provider>;
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser) {
+        const userData = await fetchUserData(currentUser.email);
+        setUser(userData);
+      } else {
+        setUser(null);
+      }
+      setAuthenticating(false);
+
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  return <AuthContext.Provider value={{ user, logOut, authenticating, logIn, setUser }}>{children}</AuthContext.Provider>;
 };
 
 export const UserAuth = () => {

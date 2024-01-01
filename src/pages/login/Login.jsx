@@ -127,18 +127,10 @@ const Login = () => {
               onClick={(e) => {
                 e.preventDefault();
                 logIn(email, password).then((user) => {
-                  if (user === undefined) {
-                    toast.error("Login failed");
+                  if (user === "staff") {
+                    navigate("/manageinfo");
                   } else {
-                    if (user["status"] === 0) {
-                      if (user["role"] === "staff") {
-                        navigate("/manageinfo");
-                      } else if (user["role"] === "admin") {
-                        navigate("/");
-                      }
-                    } else {
-                      toast.error("Cannot login");
-                    }
+                    navigate("/");
                   }
                 });
               }}
@@ -215,3 +207,16 @@ const Login = () => {
 };
 
 export default Login;
+// if (user === undefined) {
+//   toast.error("Login failed");
+// } else {
+//   if (user["status"] === 0) {
+//     if (user["role"] === "staff") {
+//       navigate("/manageinfo");
+//     } else if (user["role"] === "admin") {
+//       navigate("/");
+//     }
+//   } else {
+//     toast.error("Cannot login");
+//   }
+// }
