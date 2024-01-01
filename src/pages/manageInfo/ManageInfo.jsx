@@ -7,7 +7,6 @@ import { RiErrorWarningFill } from "react-icons/ri";
 import { IoMdCheckmarkCircleOutline } from "react-icons/io";
 import { RiErrorWarningLine } from "react-icons/ri";
 import { UserAuth } from "../../components/hooks/useAuth";
-import { useNavigate } from "react-router-dom";
 import UserHeader from "../../components/layout/UserHeader";
 import {
   collection,
@@ -33,15 +32,15 @@ const ManageInfo = () => {
   const url = useUserImage(user);
   const [showModal, setShowModal] = useState(false);
 
-  // const [dayOfWork, setDayOfWork] = useState(0);
   const [avgTime, setAvgTime] = useState("");
   const [late, setLate] = useState(0);
   const [absent, setAbsent] = useState(0);
+  const [dayOfWork, setDayOfWork] = useState(0);
   const [alertList, setAlertList] = useState([]);
 
   const dateObject = moment(date);
 
-  const onChange = (date) => {
+  const onChange = async (date) => {
     setDate(date ? date.toDate() : new Date());
     setIsCheck(true);
   };
@@ -75,30 +74,28 @@ const ManageInfo = () => {
     }
   }
 
-  async function getAlert(month, year) {
-    //Chỉnh chỗ này sao cho reload lại ko cộng dồn vào setAlertList
+  function getAlert(month, year) {
     try {
-      const alertMessageRef = collection(db, `User/${user.uid}/AlertMessage`);
-      const lastDayOfMonth = endOfMonth(new Date(year, month - 1));
       let content = late > absent ? 1 : 0;
+      const alerts = [];
 
-      if (late / 3 >= 1 || absent / 3 >= 1) {
-        await addDoc(alertMessageRef, {
-          content,
-          noti_date: lastDayOfMonth,
-        }).then(() => {
-          console.log("Up thành công");
-        });
+      console.log(dayOfWork);
+
+      if (dayOfWork > 0) {
+        const numberOfAlerts = Math.max(
+          Math.floor(late / 3),
+          Math.floor(absent / 3)
+        );
+
+        for (let i = 0; i < numberOfAlerts; i++) {
+          alerts.push({
+            content,
+            time: new Date(year, month),
+          });
+        }
       }
 
-      const querySnapshot = await getDocs(
-        query(alertMessageRef, where("noti_date", "==", lastDayOfMonth))
-      );
-
-      if (!querySnapshot.empty) {
-        const alertsInMonth = querySnapshot.docs.map((doc) => doc.data());
-        setAlertList(alertsInMonth);
-      }
+      setAlertList(alerts);
     } catch (error) {}
   }
 
@@ -115,8 +112,8 @@ const ManageInfo = () => {
     // setDayOfWork(countWeekdaysInRange());
 
     countLateAndAbsentAndtime(attendanceRecord)
-      .then(async () => {
-        await getAlert(dateObject.month() + 1, date.getFullYear());
+      .then(() => {
+        getAlert(dateObject.month() + 1, date.getFullYear());
       })
       .catch((err) => {
         console.log(err);
@@ -184,6 +181,7 @@ const ManageInfo = () => {
 
       let totalAbsent = totalWorkingDays - (totalLate + totaOntime);
 
+      setDayOfWork(totalLate + totaOntime);
       setAvgTime(formattedAvgTime);
       setLate(totalLate);
       setAbsent(totalAbsent < 0 ? 0 : totalAbsent);
@@ -388,9 +386,8 @@ const ManageInfo = () => {
                     Caution:{" "}
                     <span>
                       {value.content === 1
-                        ? "Too many late"
-                        : "Too many absent"}
-                      Too many absent
+                        ? `Too many late ${index + 1}`
+                        : `Too many absent ${index + 1}`}
                     </span>
                   </p>
                 </div>
@@ -594,11 +591,7 @@ const ManageInfo = () => {
             }}
           ></div>
         )}
-        {showModal && (
-          <EditEmployeeModal
-            setShowModal={setShowModal}
-          />
-        )}
+        {showModal && <EditEmployeeModal setShowModal={setShowModal} />}
       </div>
     </>
   );
