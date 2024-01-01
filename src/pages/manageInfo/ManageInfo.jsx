@@ -128,21 +128,19 @@ const ManageInfo = () => {
 
   //format tháng
   const formatDate = (timestamp) => {
-    // const date = timestamp.toDate();
-    // const day = date.getDate().toString().padStart(2, "0");
-    // const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    // const year = date.getFullYear();
-    // return `${day}/${month}/${year}`;
-    return "";
+    const date = timestamp.toDate();
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
   };
 
   //format ngày
   const formatTime = (timestamp) => {
-    // const currentDate = timestamp.toDate();
-    // const hours = currentDate.getHours().toString().padStart(2, "0");
-    // const minutes = currentDate.getMinutes().toString().padStart(2, "0");
-    // return `${hours}:${minutes}`;
-    return "";
+    const currentDate = timestamp.toDate();
+    const hours = currentDate.getHours().toString().padStart(2, "0");
+    const minutes = currentDate.getMinutes().toString().padStart(2, "0");
+    return `${hours}:${minutes}`;
   };
 
   return (
@@ -539,8 +537,6 @@ const ManageInfo = () => {
         {showModal && (
           <EditEmployeeModal
             setShowModal={setShowModal}
-            user={user}
-            setUser={setUser}
           />
         )}
       </div>

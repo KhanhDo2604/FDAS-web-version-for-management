@@ -1,14 +1,17 @@
-import React, { useDebugValue, useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { DatePicker } from "antd";
 import { doc, collection, updateDoc } from "firebase/firestore";
 import { db, storage } from "../../firebase";
 import { ref, uploadBytes } from "firebase/storage";
 import { toast } from "react-toastify";
+import moment from "moment";
+import { UserAuth } from "../hooks/useAuth";
 
-const EditEmployeeModal = ({ setShowModal, user, setUser }) => {
+const EditEmployeeModal = ({ setShowModal }) => {
   const imageRef = useRef();
   const form = useRef();
+  const { user, setUser } = UserAuth()
 
   const [dateOfBirth, setDateOfBirth] = useState(
     new Date(user.birthday.seconds).toLocaleDateString("en-US")
@@ -252,6 +255,7 @@ const EditEmployeeModal = ({ setShowModal, user, setUser }) => {
 
             <DatePicker
               onChange={onChange}
+              value={moment(dateOfBirth, 'MM/DD/YYYY')}
               style={{
                 width: "100%",
                 marginTop: "8px",
