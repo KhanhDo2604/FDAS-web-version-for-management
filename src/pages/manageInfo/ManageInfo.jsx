@@ -29,6 +29,7 @@ const ManageInfo = () => {
   const [ischeck, setIsCheck] = useState(false);
   const [attendanceRecord, setAttendanceRecord] = useState([]);
   const [date, setDate] = useState(new Date());
+  console.log(date);
   const { user, setUser } = UserAuth();
   const url = useUserImage(user);
   const [showModal, setShowModal] = useState(false);
@@ -99,7 +100,7 @@ const ManageInfo = () => {
         const alertsInMonth = querySnapshot.docs.map((doc) => doc.data());
         setAlertList(alertsInMonth);
       }
-    } catch (error) {}
+    } catch (error) { }
   }
 
   const handleShowModal = () => {
@@ -121,7 +122,7 @@ const ManageInfo = () => {
       .catch((err) => {
         console.log(err);
       });
-  }, [attendanceRecord, ischeck]);
+  }, [attendanceRecord, ischeck, date]);
 
   const countLateAndAbsentAndtime = async (data) => {
     try {
