@@ -79,7 +79,7 @@ const ManageInfo = () => {
   //Lấy danh sách điểm danh của cá nhân
   useEffect(() => {
     getAttendanceRecord(dateObject.month() + 1, date.getFullYear());
-  }, [ischeck]);
+  }, [ischeck, date]);
 
   useEffect(() => {
     countLateAndAbsentAndtime(
@@ -126,9 +126,15 @@ const ManageInfo = () => {
     }
   };
 
-  //format tháng
   const formatDate = (timestamp) => {
-    const date = timestamp.toDate();
+    let date;
+    if (timestamp && typeof timestamp.toDate === 'function') {
+      date = timestamp.toDate();
+    } else if (timestamp instanceof Date) {
+      date = timestamp;
+    } else {
+      date = new Date(timestamp);
+    }
     const day = date.getDate().toString().padStart(2, "0");
     const month = (date.getMonth() + 1).toString().padStart(2, "0");
     const year = date.getFullYear();
@@ -536,6 +542,8 @@ const ManageInfo = () => {
         )}
         {showModal && (
           <EditEmployeeModal
+            user={user}
+            setUser={setUser}
             setShowModal={setShowModal}
           />
         )}
