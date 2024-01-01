@@ -28,7 +28,7 @@ const ManageInfo = () => {
   const [ischeck, setIsCheck] = useState(false);
   const [attendanceRecord, setAttendanceRecord] = useState([]);
   const [date, setDate] = useState(new Date());
-  console.log(date);
+
   const { user, setUser } = UserAuth();
   const url = useUserImage(user);
   const [showModal, setShowModal] = useState(false);
@@ -75,14 +75,14 @@ const ManageInfo = () => {
     }
   }
 
-  function getAlert(month, year) {
+  function getAlert(month, year, day) {
     try {
       let content = late > absent ? 1 : 0;
       const alerts = [];
 
-      console.log(dayOfWork);
+      console.log(day);
 
-      if (dayOfWork > 0) {
+      if (day > 0) {
         const numberOfAlerts = Math.max(
           Math.floor(late / 3),
           Math.floor(absent / 3)
@@ -110,18 +110,11 @@ const ManageInfo = () => {
   }, [ischeck, date]);
 
   useEffect(() => {
-    // setDayOfWork(countWeekdaysInRange());
-
-    countLateAndAbsentAndtime(attendanceRecord)
-      .then(() => {
-        getAlert(dateObject.month() + 1, date.getFullYear());
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    let day = countLateAndAbsentAndtime(attendanceRecord);
+    getAlert(dateObject.month() + 1, date.getFullYear(), day);
   }, [attendanceRecord, ischeck, date]);
 
-  const countLateAndAbsentAndtime = async (data) => {
+  const countLateAndAbsentAndtime = (data) => {
     try {
       let totalLate = 0;
       let totaOntime = 0;
@@ -182,10 +175,15 @@ const ManageInfo = () => {
 
       let totalAbsent = totalWorkingDays - (totalLate + totaOntime);
 
+      console.log(`late: ${totalLate}`);
+      console.log(`on Time: ${totaOntime}`);
+
       setDayOfWork(totalLate + totaOntime);
       setAvgTime(formattedAvgTime);
       setLate(totalLate);
       setAbsent(totalAbsent < 0 ? 0 : totalAbsent);
+
+      return totalLate + totaOntime;
     } catch (error) {
       console.log(error);
     }
@@ -193,7 +191,7 @@ const ManageInfo = () => {
 
   const formatDate = (timestamp) => {
     let date;
-    if (timestamp && typeof timestamp.toDate === 'function') {
+    if (timestamp && typeof timestamp.toDate === "function") {
       date = timestamp.toDate();
     } else if (timestamp instanceof Date) {
       date = timestamp;
@@ -508,7 +506,7 @@ const ManageInfo = () => {
                   }}
                 >
                   <p style={{ fontWeight: "600", textAlign: "start" }}>
-                    {absent}
+                    {dayOfWork > 0 ? absent : 0}
                   </p>
                   <p>Absent</p>
                 </div>
