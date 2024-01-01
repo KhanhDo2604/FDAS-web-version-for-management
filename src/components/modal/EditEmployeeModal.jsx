@@ -1,17 +1,20 @@
 import React, { useEffect, useRef, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
-import { doc, collection, updateDoc } from "firebase/firestore";
+import { doc, collection, updateDoc, Timestamp } from "firebase/firestore";
 import { db, storage } from "../../firebase";
 import { ref, uploadBytes } from "firebase/storage";
 import { toast } from "react-toastify";
-import { UserAuth } from "../hooks/useAuth";
 import useUserImage from "../hooks/UseUserImage";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const EditEmployeeModal = ({ setShowModal, user, setUser }) => {
   const imageRef = useRef();
+
   const form = useRef();
 
   const url = useUserImage(user)
+
   const [isImage, setIsImage] = useState(false)
 
   const [data, setData] = useState({
@@ -20,7 +23,20 @@ const EditEmployeeModal = ({ setShowModal, user, setUser }) => {
     fullName: user.name,
     phoneNumber: user.phone,
     gender: user.gender,
+    birthday: null
   });
+
+  const formatDate = (date) => {
+    if (!date || !(date instanceof Date || typeof date.toDate === 'function')) {
+      return '';
+    }
+    const d = (date instanceof Date) ? date : date.toDate();
+    let day = ('0' + d.getDate()).slice(-2);
+    let month = ('0' + (d.getMonth() + 1)).slice(-2);
+    let year = d.getFullYear();
+
+    return `${day}/${month}/${year}`;
+  };
 
   const handleImageClick = () => {
     imageRef.current.click();
@@ -38,6 +54,15 @@ const EditEmployeeModal = ({ setShowModal, user, setUser }) => {
     }
   };
 
+  const handleDateChange = (newDate) => {
+    const day = ('0' + newDate.getDate()).slice(-2);
+    const month = ('0' + (newDate.getMonth() + 1)).slice(-2);
+    const year = newDate.getFullYear();
+    const formattedDate = `${day}/${month}/${year}`;
+
+    setData({ ...data, birthday: formattedDate });
+  };
+
   useEffect(() => {
     return () => {
       if (data.imagePreview) {
@@ -53,8 +78,19 @@ const EditEmployeeModal = ({ setShowModal, user, setUser }) => {
     }));
   }, [url]);
 
+  useEffect(() => {
+    const formattedBirthday = formatDate(user.birthday);
+    setData({ ...data, birthday: formattedBirthday });
+  }, [user.birthday]);
+
+
   const handleSubmitForm = (e) => {
     e.preventDefault();
+    const birthdayParts = data.birthday.split('/');
+    const birthdayDate = new Date(birthdayParts[2], birthdayParts[1] - 1, birthdayParts[0]);
+
+    // Convert the Date object to Firestore Timestamp
+    const birthdayTimestamp = Timestamp.fromDate(birthdayDate);
     try {
       const docRef = doc(collection(db, "User"), user.uid.toString());
       if (isImage) {
@@ -66,6 +102,7 @@ const EditEmployeeModal = ({ setShowModal, user, setUser }) => {
           name: data.fullName,
           phone: data.phoneNumber,
           gender: data.gender,
+          birthday: birthdayTimestamp,
         };
         uploadBytes(storageRef, data.image)
           .then((result) => {
@@ -81,6 +118,7 @@ const EditEmployeeModal = ({ setShowModal, user, setUser }) => {
           name: data.fullName,
           phone: data.phoneNumber,
           gender: data.gender,
+          birthday: birthdayTimestamp,
         };
         updateDoc(docRef, newData).then(() => {
           setUser({ ...newData, email: user.email, uid: user.uid.toString(), url: url })
@@ -212,7 +250,7 @@ const EditEmployeeModal = ({ setShowModal, user, setUser }) => {
           <div style={{ padding: "12px" }}>
             <div>
               <label style={{ fontWeight: "bold" }} htmlFor="">
-                Giới tính:
+                Gender:
               </label>
             </div>
             <select
@@ -233,6 +271,17 @@ const EditEmployeeModal = ({ setShowModal, user, setUser }) => {
               <option value="nam">Nam</option>
               <option value="nữ">Nữ</option>
             </select>
+          </div>
+
+          <div style={{ padding: "12px" }}>
+            <div>
+              <label style={{ fontWeight: "bold" }} htmlFor="">
+                Date of Birth:
+              </label>
+            </div>
+            <DatePicker
+              value={data.birthday}
+              onChange={handleDateChange} />
           </div>
 
           <div style={{ marginTop: "16px", textAlign: "center" }}>

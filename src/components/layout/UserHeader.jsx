@@ -22,7 +22,7 @@ const UserHeader = ({ toggleSidebar }) => {
           padding: "10px",
         }}
       >
-        {user.role === "admin" ?
+        {user?.role === "admin" ?
           <img onClick={toggleSidebar} src="/Button.png" alt="" style={{ width: '32px', cursor: 'pointer' }} /> : <div></div>}
         <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
           <img
