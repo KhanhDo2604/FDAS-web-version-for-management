@@ -15,13 +15,14 @@ import {
   getCountFromServer,
   getDoc,
   getDocs,
+  addDoc,
   query,
   where,
 } from "firebase/firestore";
 import { db } from "../../firebase";
 import moment from "moment";
 import useUserImage from "../../components/hooks/UseUserImage";
-import { startOfMonth, endOfMonth } from "date-fns";
+import { startOfMonth, endOfMonth, addDays } from "date-fns";
 import EditEmployeeModal from "../../components/modal/EditEmployeeModal";
 
 const ManageInfo = () => {
@@ -32,9 +33,11 @@ const ManageInfo = () => {
   const url = useUserImage(user);
   const [showModal, setShowModal] = useState(false);
 
+  // const [dayOfWork, setDayOfWork] = useState(0);
   const [avgTime, setAvgTime] = useState("");
   const [late, setLate] = useState(0);
   const [absent, setAbsent] = useState(0);
+  const [alertList, setAlertList] = useState([]);
 
   const dateObject = moment(date);
 
@@ -72,6 +75,33 @@ const ManageInfo = () => {
     }
   }
 
+  async function getAlert(month, year) {
+    //Chỉnh chỗ này sao cho reload lại ko cộng dồn vào setAlertList
+    try {
+      const alertMessageRef = collection(db, `User/${user.uid}/AlertMessage`);
+      const lastDayOfMonth = endOfMonth(new Date(year, month - 1));
+      let content = late > absent ? 1 : 0;
+
+      if (late / 3 >= 1 || absent / 3 >= 1) {
+        await addDoc(alertMessageRef, {
+          content,
+          noti_date: lastDayOfMonth,
+        }).then(() => {
+          console.log("Up thành công");
+        });
+      }
+
+      const querySnapshot = await getDocs(
+        query(alertMessageRef, where("noti_date", "==", lastDayOfMonth))
+      );
+
+      if (!querySnapshot.empty) {
+        const alertsInMonth = querySnapshot.docs.map((doc) => doc.data());
+        setAlertList(alertsInMonth);
+      }
+    } catch (error) {}
+  }
+
   const handleShowModal = () => {
     setShowModal(true);
   };
@@ -82,24 +112,31 @@ const ManageInfo = () => {
   }, [ischeck, date]);
 
   useEffect(() => {
-    countLateAndAbsentAndtime(
-      attendanceRecord,
-      dateObject.month() + 1,
-      date.getFullYear()
-    );
+    // setDayOfWork(countWeekdaysInRange());
+
+    countLateAndAbsentAndtime(attendanceRecord)
+      .then(async () => {
+        await getAlert(dateObject.month() + 1, date.getFullYear());
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }, [attendanceRecord, ischeck]);
 
-  const countLateAndAbsentAndtime = async (data, month, year) => {
-    //Ghép cách tính absent
-    //Sau khi chỉnh sửa thông tin thì reload lại
+  const countLateAndAbsentAndtime = async (data) => {
     try {
       let totalLate = 0;
+      let totaOntime = 0;
       let totalMinutes = 0;
+      let firstDayOfMonth;
+      let lastDayOfMonth;
 
       data.forEach((record) => {
         // Trường hợp late
         if (record.status === 2) {
           totalLate++;
+        } else {
+          totaOntime++;
         }
 
         //Tính tổng thời gian
@@ -119,8 +156,37 @@ const ManageInfo = () => {
         avgMinutesRemainder
       ).padStart(2, "0")}`;
 
+      const currentDate = new Date();
+      //tính ngày nghỉ
+      if (date.getMonth() !== currentDate.getMonth()) {
+        firstDayOfMonth = startOfMonth(date);
+        lastDayOfMonth = endOfMonth(date);
+      } else {
+        firstDayOfMonth = startOfMonth(currentDate);
+        lastDayOfMonth = currentDate;
+      }
+
+      let workingDaysCount = 0;
+
+      let currentDateInRange = firstDayOfMonth;
+
+      while (currentDateInRange <= lastDayOfMonth) {
+        if (
+          currentDateInRange.getDay() >= 1 &&
+          currentDateInRange.getDay() <= 5
+        ) {
+          workingDaysCount++;
+        }
+
+        currentDateInRange = addDays(currentDateInRange, 1);
+      }
+      const totalWorkingDays = workingDaysCount;
+
+      let totalAbsent = totalWorkingDays - (totalLate + totaOntime);
+
       setAvgTime(formattedAvgTime);
       setLate(totalLate);
+      setAbsent(totalAbsent < 0 ? 0 : totalAbsent);
     } catch (error) {
       console.log(error);
     }
@@ -310,43 +376,35 @@ const ManageInfo = () => {
               Notice board
             </div>
 
-            <div
-              className="left__notice-container"
-              style={{
-                display: "flex",
-                gap: "4px",
-                justifyContent: "space-between",
-              }}
-            >
-              <div style={{ display: "flex", gap: "5px" }}>
-                <RiErrorWarningFill
-                  style={{ color: "red", width: "20px", height: "20px" }}
-                />
+            {alertList.map((value, index) => (
+              <div
+                key={index}
+                className="left__notice-container"
+                style={{
+                  display: "flex",
+                  gap: "4px",
+                  justifyContent: "space-between",
+                }}
+              >
+                <div style={{ display: "flex", gap: "5px" }}>
+                  <RiErrorWarningFill
+                    style={{ color: "red", width: "20px", height: "20px" }}
+                  />
+                  <p style={{ fontWeight: "600", fontSize: "16px" }}>
+                    Caution:{" "}
+                    <span>
+                      {value.content === 1
+                        ? "Too many late"
+                        : "Too many absent"}
+                      Too many absent
+                    </span>
+                  </p>
+                </div>
                 <p style={{ fontWeight: "600", fontSize: "16px" }}>
-                  Caution: <span>Too many absent</span>
+                  {`${dateObject.month() + 1}/${date.getFullYear()}`}
                 </p>
               </div>
-              <p style={{ fontWeight: "600", fontSize: "16px" }}>12/2023</p>
-            </div>
-
-            <div
-              className="left__notice-container"
-              style={{
-                display: "flex",
-                gap: "4px",
-                justifyContent: "space-between",
-              }}
-            >
-              <div style={{ display: "flex", gap: "5px" }}>
-                <RiErrorWarningFill
-                  style={{ color: "red", width: "20px", height: "20px" }}
-                />
-                <p style={{ fontWeight: "600", fontSize: "16px" }}>
-                  Caution: <span>Too many late </span>
-                </p>
-              </div>
-              <p style={{ fontWeight: "600", fontSize: "16px" }}>12/2023</p>
-            </div>
+            ))}
           </div>
         </div>
 
@@ -451,7 +509,9 @@ const ManageInfo = () => {
                     marginLeft: "10px",
                   }}
                 >
-                  <p style={{ fontWeight: "600", textAlign: "start" }}>05</p>
+                  <p style={{ fontWeight: "600", textAlign: "start" }}>
+                    {absent}
+                  </p>
                   <p>Absent</p>
                 </div>
               </div>
