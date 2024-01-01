@@ -8,7 +8,7 @@ const AuthContext = createContext();
 
 export const AuthContextProvider = ({ children }) => {
   const [user, setUser] = useState({});
-  const [authenticating, setAuthenticating] = useState(true);
+  // const [authenticating, setAuthenticating] = useState(true);
 
   // logout
   const logOut = () => {
@@ -60,14 +60,12 @@ export const AuthContextProvider = ({ children }) => {
       } else {
         setUser(null);
       }
-      setAuthenticating(false);
-
     });
 
     return () => unsubscribe();
   }, []);
 
-  return <AuthContext.Provider value={{ user, logOut, authenticating, logIn, setUser }}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={{ user, logOut, logIn, setUser }}>{children}</AuthContext.Provider>;
 };
 
 export const UserAuth = () => {

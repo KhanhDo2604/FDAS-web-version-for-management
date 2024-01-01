@@ -22,21 +22,12 @@ const UserHeader = ({ toggleSidebar }) => {
           padding: "10px",
         }}
       >
-        {user.role != "staff" ? (
-          <img
-            onClick={toggleSidebar}
-            src="/Button.png"
-            alt=""
-            style={{ width: "32px", cursor: "pointer" }}
-          />
-        ) : (
-          <div style={{ width: "32px" }}></div>
-        )}
-
+        {user.role === "admin" ?
+          <img onClick={toggleSidebar} src="/Button.png" alt="" style={{ width: '32px', cursor: 'pointer' }} /> : <div></div>}
         <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
           <img
             onClick={handleLogout}
-            style={{ width: "24px", cursor: "pointer" }}
+            style={{ width: '24px', cursor: 'pointer' }}
             src="/Logout.png"
             alt=""
           />

@@ -20,15 +20,11 @@ function App() {
           <Routes>
             <Route path='/login' element={<Login />} />
             <Route path='/' element={
-              <ProtectedRoute allowedRoles={["admin"]}>
-                <Home />
-              </ProtectedRoute>
+              <Home />
             }
             />
             <Route path='/manageinfo' element={
-              <ProtectedRoute allowedRoles={["staff"]}>
-                <ManageInfo />
-              </ProtectedRoute>
+              <ManageInfo />
             } />
           </Routes>
         </React.Suspense>

@@ -1,35 +1,26 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
-import { DatePicker } from "antd";
 import { doc, collection, updateDoc } from "firebase/firestore";
 import { db, storage } from "../../firebase";
 import { ref, uploadBytes } from "firebase/storage";
 import { toast } from "react-toastify";
-import moment from "moment";
 import { UserAuth } from "../hooks/useAuth";
+import useUserImage from "../hooks/UseUserImage";
 
-const EditEmployeeModal = ({ setShowModal }) => {
+const EditEmployeeModal = ({ setShowModal, user, setUser }) => {
   const imageRef = useRef();
   const form = useRef();
-  const { user, setUser } = UserAuth()
 
-  const [dateOfBirth, setDateOfBirth] = useState(
-    new Date(user.birthday.seconds).toLocaleDateString("en-US")
-  );
-
-  const [isImage, setIsImage] = useState(false);
+  const url = useUserImage(user)
+  const [isImage, setIsImage] = useState(false)
 
   const [data, setData] = useState({
     image: user.url,
+    imagePreview: null,
     fullName: user.name,
     phoneNumber: user.phone,
     gender: user.gender,
-    birthday: dateOfBirth,
   });
-
-  const onChange = (date, dateString) => {
-    setDateOfBirth(dateString);
-  };
 
   const handleImageClick = () => {
     imageRef.current.click();
@@ -37,68 +28,66 @@ const EditEmployeeModal = ({ setShowModal }) => {
 
   const handleDataChange = (e) => {
     const { name, value, files } = e.target;
-    if (name === "image") {
+    if (name === "image" && files.length > 0) {
       const file = files[0];
-      setData({ ...data, [name]: file });
-      setIsImage(true);
+      const imagePreview = URL.createObjectURL(file);
+      setData({ ...data, [name]: file, imagePreview: imagePreview });
+      setIsImage(true)
     } else {
       setData({ ...data, [name]: value });
     }
   };
 
-  const handleSubmitForm = async (e) => {
-    e.preventDefault();
-
-    try {
-      let docRef = doc(collection(db, "User"), user.uid.toString());
-      const time = new Date(dateOfBirth);
-      if (
-        data.fullName !== user.name ||
-        data.phoneNumber !== user.phone ||
-        data.gender !== user.gender ||
-        dateOfBirth !==
-        new Date(user.birthday.seconds).toLocaleDateString("en-US")
-      ) {
-        if (isImage) {
-          const fileExtension = data.image.name.split(".").pop();
-          const fileName = `${user.uid}.${fileExtension}`;
-          const storageRef = ref(storage, `users/${fileName}`);
-
-          let newData = {
-            url: `users/${fileName}`,
-            name: data.fullName,
-            phone: data.phoneNumber,
-            gender: data.gender,
-            birthday: time,
-          };
-
-          uploadBytes(storageRef, data.image)
-            .then((result) => {
-              updateDoc(docRef, newData).then(() => {
-                setUser(newData)
-                toast.success("Change successfully");
-                setShowModal(false);
-              });
-            })
-            .catch((err) => {
-              console.log(err);
-            });
-        } else {
-          let newData = {
-            name: data.fullName,
-            phone: data.phoneNumber,
-            gender: data.gender,
-            birthday: time,
-          };
-          updateDoc(docRef, newData).then(() => {
-            setUser(newData);
-            toast.success("Change successfully");
-            setShowModal(false);
-          });
-        }
-      } else {
-        console.log("unchange");
+  useEffect(() => {
+    return () => {
+      if (data.imagePreview) {
+        URL.revokeObjectURL(data.imagePreview);
       }
+    };
+  }, [data.imagePreview]);
+
+  useEffect(() => {
+    setData((prevData) => ({
+      ...prevData,
+      imagePreview: url
+    }));
+  }, [url]);
+
+  const handleSubmitForm = (e) => {
+    e.preventDefault();
+    try {
+      const docRef = doc(collection(db, "User"), user.uid.toString());
+      if (isImage) {
+        const fileExtension = data.image.name.split(".").pop();
+        const fileName = `${user.uid}.${fileExtension}`;
+        const storageRef = ref(storage, `users/${fileName}`);
+        let newData = {
+          url: `users/${fileName}`,
+          name: data.fullName,
+          phone: data.phoneNumber,
+          gender: data.gender,
+        };
+        uploadBytes(storageRef, data.image)
+          .then((result) => {
+            updateDoc(docRef, newData).then(() => {
+              setUser({ ...newData, email: user.email, uid: user.uid.toString() })
+            });
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      } else {
+        let newData = {
+          name: data.fullName,
+          phone: data.phoneNumber,
+          gender: data.gender,
+        };
+        updateDoc(docRef, newData).then(() => {
+          setUser({ ...newData, email: user.email, uid: user.uid.toString(), url: url })
+        });
+      }
+      toast.success("Change successfully");
+      setShowModal(false);
     } catch (error) {
       console.log(error);
     }
@@ -136,9 +125,9 @@ const EditEmployeeModal = ({ setShowModal }) => {
             onClick={handleImageClick}
             style={{ display: "flex", justifyContent: "center" }}
           >
-            {data.image ? (
+            {data.imagePreview ? (
               <img
-                src={data.image}
+                src={data.imagePreview}
                 style={{ width: "100px", height: "100px", borderRadius: "50%" }}
                 alt=""
               />
@@ -244,25 +233,6 @@ const EditEmployeeModal = ({ setShowModal }) => {
               <option value="nam">Nam</option>
               <option value="nữ">Nữ</option>
             </select>
-          </div>
-
-          <div style={{ padding: "12px" }}>
-            <div>
-              <label style={{ fontWeight: "bold" }} htmlFor="">
-                Date of Birth:
-              </label>
-            </div>
-
-            <DatePicker
-              onChange={onChange}
-              value={moment(dateOfBirth, 'MM/DD/YYYY')}
-              style={{
-                width: "100%",
-                marginTop: "8px",
-                borderColor: "#000",
-                color: "#000",
-              }}
-            />
           </div>
 
           <div style={{ marginTop: "16px", textAlign: "center" }}>
