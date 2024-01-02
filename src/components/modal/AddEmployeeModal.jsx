@@ -14,6 +14,7 @@ import { generateRandomID } from "../../helpers";
 import { ref, uploadBytes } from "firebase/storage";
 import axios from "axios";
 import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
+import { toast } from "react-toastify";
 
 const AddEmployeeModal = ({ setShowModal, password, getAllData }) => {
   const imageRef = useRef();
@@ -56,7 +57,7 @@ const AddEmployeeModal = ({ setShowModal, password, getAllData }) => {
     const q = query(docRef, where("email", "==", data.email));
     const docsSnap = await getDocs(q);
     if (!docsSnap.empty) {
-      console.log("Email is exists");
+      toast.error("This Email already exists")
       return;
     } else {
       console.log("No such document!");

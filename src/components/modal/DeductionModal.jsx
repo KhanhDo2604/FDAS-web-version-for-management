@@ -26,6 +26,7 @@ const DeductionModal = ({ setIsModal, setCompany }) => {
                 late_rate: parseInt(rate.late),
                 absent_rate: parseInt(rate.absent)
             }));
+            toast("Update Deduction Rate is success")
         } catch (error) {
             console.log(error);
         }

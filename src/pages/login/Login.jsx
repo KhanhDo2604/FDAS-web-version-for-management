@@ -129,8 +129,10 @@ const Login = () => {
                 logIn(email, password).then((user) => {
                   if (user === "staff") {
                     navigate("/manageinfo");
+                    toast("Logged in successfully")
                   } else {
                     navigate("/");
+                    toast("Logged in successfully")
                   }
                 });
               }}

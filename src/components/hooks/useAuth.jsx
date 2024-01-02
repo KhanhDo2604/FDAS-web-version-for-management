@@ -8,7 +8,6 @@ const AuthContext = createContext();
 
 export const AuthContextProvider = ({ children }) => {
   const [user, setUser] = useState({});
-  // const [authenticating, setAuthenticating] = useState(true);
 
   // logout
   const logOut = () => {

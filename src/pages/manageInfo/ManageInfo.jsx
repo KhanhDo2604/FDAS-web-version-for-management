@@ -80,8 +80,6 @@ const ManageInfo = () => {
       let content = late > absent ? 1 : 0;
       const alerts = [];
 
-      console.log(day);
-
       if (day > 0) {
         const numberOfAlerts = Math.max(
           Math.floor(late / 3),
@@ -97,7 +95,7 @@ const ManageInfo = () => {
       }
 
       setAlertList(alerts);
-    } catch (error) {}
+    } catch (error) { }
   }
 
   const handleShowModal = () => {
@@ -174,9 +172,6 @@ const ManageInfo = () => {
       const totalWorkingDays = workingDaysCount;
 
       let totalAbsent = totalWorkingDays - (totalLate + totaOntime);
-
-      console.log(`late: ${totalLate}`);
-      console.log(`on Time: ${totaOntime}`);
 
       setDayOfWork(totalLate + totaOntime);
       setAvgTime(formattedAvgTime);
@@ -569,7 +564,9 @@ const ManageInfo = () => {
                         fontWeight: "600",
                         padding: "3px 17px",
                         borderRadius: "20px",
+                        textAlign: "center",
                         fontSize: "13px",
+                        width: "100px",
                         backgroundColor:
                           value.status == 1 ? "#CCF5D2" : "#FDD2CC",
                       }}
