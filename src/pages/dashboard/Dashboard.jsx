@@ -280,6 +280,17 @@ const Dashboard = () => {
       form.resetFields();
       setIsCheck(false)
       setAttendanceRecord([])
+      setCountAttendanceRecord([])
+      setLateCounts([])
+      setListMember([])
+      setAbsentCounts([])
+      setOnTimeCounts([])
+      setAttendanceInfo({
+        maxLate: 0,
+        staffNameWithMaxLate: null,
+        maxAbsent: 0,
+        staffNameWithMaxAbsent: null,
+      });
     }
   }, [selected])
 

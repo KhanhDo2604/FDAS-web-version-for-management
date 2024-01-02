@@ -615,7 +615,7 @@ const PaginatedTable = ({
           renderOnZeroPageCount={null}
         />
       </div>
-      {isModal && <DeductionModal setIsModal={setIsModal} />}
+      {isModal && <DeductionModal setIsModal={setIsModal} setCompany={setCompany} />}
     </>
   );
 };

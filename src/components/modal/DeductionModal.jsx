@@ -4,7 +4,7 @@ import { db } from '../../firebase'
 import { toast } from 'react-toastify';
 import { absentRateSchema, lateRateSchema } from '../../constant';
 
-const DeductionModal = ({ setIsModal }) => {
+const DeductionModal = ({ setIsModal, setCompany }) => {
     const [rate, setRate] = useState({
         absent: 0,
         late: 0
@@ -21,6 +21,11 @@ const DeductionModal = ({ setIsModal }) => {
                 late_rate: parseInt(rate.late),
                 absent_rate: parseInt(rate.absent)
             })
+            setCompany(prevCompany => ({
+                ...prevCompany,
+                late_rate: parseInt(rate.late),
+                absent_rate: parseInt(rate.absent)
+            }));
         } catch (error) {
             console.log(error);
         }
