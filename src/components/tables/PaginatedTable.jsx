@@ -14,7 +14,7 @@ const PaginatedTable = ({
   countAttendanceRecord,
   itemPerpage,
   layout = 1,
-  setListStaff
+  setListStaff,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isModal, setIsModal] = useState(false);
@@ -48,36 +48,44 @@ const PaginatedTable = ({
     setItemOffset(0);
   };
 
-  //Thay đổi status nhân viên 
+  //Thay đổi status nhân viên
   const handleChangeStatus = (id, userStatus) => {
     let docRef = doc(db, "User", id.toString());
-    const newData = [...listMember].map(e => {
+    const newData = [...listMember].map((e) => {
       if (+e.id == id) {
         return {
           ...e,
-          status: e.status == 1 ? 0 : 1
-        }
-      } return e
-    })
-    setListStaff([...newData])
+          status: e.status == 1 ? 0 : 1,
+        };
+      }
+      return e;
+    });
+    setListStaff([...newData]);
 
     updateDoc(docRef, {
       status: userStatus === 1 ? 0 : 1,
-    }).then(() => {
-      console.log("111 cái này fetch lại data nè");
-    }).catch((error) => console.log(error))
+    })
+      .then(() => {
+        console.log("111 cái này fetch lại data nè");
+      })
+      .catch((error) => console.log(error));
   };
 
   //Thay đổi mặt để nhận dạng
-  const handleChangeFace = () => { };
+  const handleChangeFace = () => {};
 
   // EXPORT DATA TO EXCEL
   const handleOnExport = async () => {
-    const combined = combineLists(listMember, countAttendanceRecord, company, layout);
-    const wb = XLSX.utils.book_new()
-    const ws = XLSX.utils.json_to_sheet(combined)
-    XLSX.utils.book_append_sheet(wb, ws, "MySheet1")
-    XLSX.writeFile(wb, "Attendance Record.xlsx")
+    const combined = combineLists(
+      listMember,
+      countAttendanceRecord,
+      company,
+      layout
+    );
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(combined);
+    XLSX.utils.book_append_sheet(wb, ws, "MySheet1");
+    XLSX.writeFile(wb, "Attendance Record.xlsx");
   };
 
   const handleOpenModal = () => {
@@ -316,27 +324,37 @@ const PaginatedTable = ({
           </thead>
           <tbody>
             {currentItems?.map((value, index) => {
-              let deduction = layout === 1 && value.salary * ((countAttendanceRecord[value.uid]?.absent * company.absent_rate) / 100 + (countAttendanceRecord[value.uid]?.late * company.late_rate) / 100);
+              let deduction =
+                layout === 1 &&
+                value.salary *
+                  ((countAttendanceRecord[value.uid]?.absent *
+                    company.absent_rate) /
+                    100 +
+                    (countAttendanceRecord[value.uid]?.late *
+                      company.late_rate) /
+                      100);
 
-              let formattedDate = '------';
-              let formattedTime = '------';
-              let status = '------';
+              let formattedDate = "------";
+              let formattedTime = "------";
+              let status = "------";
 
               if (layout === 3) {
                 const userData = countAttendanceRecord[value.uid] || {};
                 const dailyRecords = userData.dailyRecords || {};
                 const timeData = dailyRecords.time || {};
-                const timestamp = timeData.seconds ? timeData.seconds * 1000 : null;
+                const timestamp = timeData.seconds
+                  ? timeData.seconds * 1000
+                  : null;
 
                 if (timestamp) {
                   const dateObject = new Date(timestamp);
 
                   if (!isNaN(dateObject.getTime())) {
-                    formattedTime = dateObject.toLocaleTimeString('en-US', {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                      second: '2-digit',
-                      hour12: true
+                    formattedTime = dateObject.toLocaleTimeString("en-US", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      second: "2-digit",
+                      hour12: true,
                     });
 
                     const day = dateObject.getDate();
@@ -460,10 +478,10 @@ const PaginatedTable = ({
                       >
                         <p
                           style={{
-                            color: value.status === 1 ? "#5DA969" : "#E4644B",
+                            color: value.status !== 1 ? "#5DA969" : "#E4644B",
                           }}
                         >
-                          {value.status === 1 ? "Active" : "Deactive"}
+                          {value.status !== 1 ? "Active" : "Deactive"}
                         </p>
                         <div
                           style={{
@@ -485,7 +503,7 @@ const PaginatedTable = ({
                                 margin: "0",
                                 position: "absolute",
                                 top: "calc(100% + 8px)",
-                                left: value.status === 1 ? "-50px" : "-140px",
+                                left: value.status !== 1 ? "-50px" : "-140px",
                                 backgroundColor: "#fff",
                                 border: "1px solid #ccc",
                                 borderRadius: "8px",
@@ -493,46 +511,19 @@ const PaginatedTable = ({
                                 zIndex: "1",
                               }}
                             >
-                              {value.status === 1 ? (
-                                <li
-                                  key={index}
-                                  onClick={() =>
-                                    handleChangeStatus(value.uid, value.status)
-                                  }
-                                  style={{
-                                    padding: "8px",
-                                    cursor: "pointer",
-                                    transition: "background-color 0.3s",
-                                  }}
-                                >
-                                  Dectivate
-                                </li>
-                              ) : (
-                                options.map((option, index) => (
-                                  <li
-                                    key={index}
-                                    onClick={() =>
-                                      option === 0
-                                        ? handleChangeFace()
-                                        : handleChangeStatus(
-                                          value.uid,
-                                          value.status
-                                        )
-                                    }
-                                    style={{
-                                      padding: "8px",
-                                      cursor: "pointer",
-                                      transition: "background-color 0.3s",
-                                    }}
-                                  >
-                                    {option === 0
-                                      ? "Change face recognize"
-                                      : value.status === 1
-                                        ? "Deactivate"
-                                        : "Activate"}
-                                  </li>
-                                ))
-                              )}
+                              <li
+                                key={index}
+                                onClick={() =>
+                                  handleChangeStatus(value.uid, value.status)
+                                }
+                                style={{
+                                  padding: "8px",
+                                  cursor: "pointer",
+                                  transition: "background-color 0.3s",
+                                }}
+                              >
+                                {value.status !== 1 ? "Active" : "Deactive"}
+                              </li>
                             </ul>
                           )}
                         </div>
@@ -570,33 +561,34 @@ const PaginatedTable = ({
                             display: "inline-block",
                             minWidth: "100px",
                             textAlign: "center",
-                            ...(
-                              status === 1
-                                ? {
+                            ...(status === 1
+                              ? {
                                   border: "1px solid #5DA969",
                                   backgroundColor: "rgba(204, 245, 210, 0.50)",
                                   color: "#5DA969",
                                 }
-                                : status === 2
-                                  ? {
-                                    border: "1px solid #E4644B",
-                                    backgroundColor: "rgba(253, 210, 204, 0.50)",
-                                    color: "#E4644B",
-                                  }
-                                  : {
-                                    border: "1px solid #999999",
-                                    backgroundColor: "rgba(217, 217, 218, 0.50)",
-                                    color: "#999999",
-                                  }
-                            ),
+                              : status === 2
+                              ? {
+                                  border: "1px solid #E4644B",
+                                  backgroundColor: "rgba(253, 210, 204, 0.50)",
+                                  color: "#E4644B",
+                                }
+                              : {
+                                  border: "1px solid #999999",
+                                  backgroundColor: "rgba(217, 217, 218, 0.50)",
+                                  color: "#999999",
+                                }),
                             borderRadius: "20px",
                             padding: "4px 12px",
                           }}
                         >
-                          {status === 1 ? "On Time" : status === 2 ? "Late" : "Absent"}
+                          {status === 1
+                            ? "On Time"
+                            : status === 2
+                            ? "Late"
+                            : "Absent"}
                         </span>
                       </td>
-
                     </>
                   )}
                 </tr>
@@ -615,7 +607,9 @@ const PaginatedTable = ({
           renderOnZeroPageCount={null}
         />
       </div>
-      {isModal && <DeductionModal setIsModal={setIsModal} setCompany={setCompany} />}
+      {isModal && (
+        <DeductionModal setIsModal={setIsModal} setCompany={setCompany} />
+      )}
     </>
   );
 };

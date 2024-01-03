@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import PaginatedTable from '../../components/tables/PaginatedTable';
 import { generatePassword } from '../../helpers';
-import { collection, getDocs, query } from 'firebase/firestore';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../../firebase';
 import AddEmployeeModal from "../../components/modal/AddEmployeeModal"
 
@@ -16,7 +16,7 @@ const Listing = () => {
     }
 
     const getAllData = async () => {
-        const q = query(collection(db, "User"))
+        const q = query(collection(db, "User"), where("role", "==", "staff"))
         const querySnapshot = await getDocs(q)
         const result = []
         querySnapshot.forEach((doc) => {

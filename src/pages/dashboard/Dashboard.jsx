@@ -357,7 +357,7 @@ const Dashboard = () => {
                 <p>{attendanceInfo?.staffNameWithMaxLate} - {attendanceInfo?.maxLate}</p>
               </div>
               <div style={{ border: "1px solid #D9D9D9", borderRadius: "20px", padding: "12px", display: "flex", flexDirection: "column", gap: "4px", width: "50%" }}>
-                <h3>Most time of</h3>
+                <h3>Most absent</h3>
                 <p>{attendanceInfo?.staffNameWithMaxAbsent} - {attendanceInfo?.maxAbsent}</p>
               </div>
             </div>

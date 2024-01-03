@@ -77,24 +77,27 @@ const ManageInfo = () => {
 
   function getAlert(month, year, day) {
     try {
-      let content = late > absent ? 1 : 0;
-      const alerts = [];
+      if (late > 2 || absent > 2) {
+        let content = late > absent ? 1 : 0;
+        const alerts = [];
+        
+        if (day > 0) {
+          const numberOfAlerts = Math.max(
+            Math.floor(late / 3),
+            Math.floor(absent / 3)
+          );
 
-      if (day > 0) {
-        const numberOfAlerts = Math.max(
-          Math.floor(late / 3),
-          Math.floor(absent / 3)
-        );
-
-        for (let i = 0; i < numberOfAlerts; i++) {
-          alerts.push({
-            content,
-            time: new Date(year, month),
-          });
+  
+          for (let i = 0; i < numberOfAlerts; i++) {
+            alerts.push({
+              content,
+              time: new Date(year, month),
+            });
+          }
         }
+  
+        setAlertList(alerts);
       }
-
-      setAlertList(alerts);
     } catch (error) { }
   }
 
@@ -108,11 +111,11 @@ const ManageInfo = () => {
   }, [ischeck, date]);
 
   useEffect(() => {
-    let day = countLateAndAbsentAndtime(attendanceRecord);
+    let day = countLateAndAbsentAndtime();
     getAlert(dateObject.month() + 1, date.getFullYear(), day);
   }, [attendanceRecord, ischeck, date]);
 
-  const countLateAndAbsentAndtime = (data) => {
+  const countLateAndAbsentAndtime = () => {
     try {
       let totalLate = 0;
       let totaOntime = 0;
@@ -120,7 +123,8 @@ const ManageInfo = () => {
       let firstDayOfMonth;
       let lastDayOfMonth;
 
-      data.forEach((record) => {
+      attendanceRecord.forEach((record) => {
+        //Lấy tổng số ngày đi làm (có mặt tại cty)
         // Trường hợp late
         if (record.status === 2) {
           totalLate++;
@@ -134,7 +138,7 @@ const ManageInfo = () => {
           record.time.toDate().getMinutes();
       });
 
-      const recordCount = data.length;
+      const recordCount = attendanceRecord.length;
       const avgMinutes = recordCount > 0 ? totalMinutes / recordCount : 0;
 
       // Chuyển đổi thời gian trung bình thành giờ và phút
@@ -145,8 +149,8 @@ const ManageInfo = () => {
         avgMinutesRemainder
       ).padStart(2, "0")}`;
 
-      const currentDate = new Date();
       //tính ngày nghỉ
+      const currentDate = new Date();
       if (date.getMonth() !== currentDate.getMonth()) {
         firstDayOfMonth = startOfMonth(date);
         lastDayOfMonth = endOfMonth(date);
@@ -176,7 +180,13 @@ const ManageInfo = () => {
       setDayOfWork(totalLate + totaOntime);
       setAvgTime(formattedAvgTime);
       setLate(totalLate);
-      setAbsent(totalAbsent < 0 ? 0 : totalAbsent);
+
+      let temp = 0
+      if (attendanceRecord.length > 0) {
+        temp = totalAbsent < 0 ? 0 : totalAbsent
+      }
+      
+      setAbsent(temp);
 
       return totalLate + totaOntime;
     } catch (error) {
