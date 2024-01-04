@@ -8,17 +8,17 @@ import { IoMdCheckmarkCircleOutline } from "react-icons/io";
 import { RiErrorWarningLine } from "react-icons/ri";
 import { UserAuth } from "../../components/hooks/useAuth";
 import UserHeader from "../../components/layout/UserHeader";
+
 import {
   collection,
-  doc,
-  getCountFromServer,
-  getDoc,
+  onSnapshot,
   getDocs,
-  addDoc,
   query,
   where,
+  orderBy,
 } from "firebase/firestore";
 import { db } from "../../firebase";
+
 import moment from "moment";
 import useUserImage from "../../components/hooks/UseUserImage";
 import { startOfMonth, endOfMonth, addDays } from "date-fns";
@@ -38,6 +38,7 @@ const ManageInfo = () => {
   const [absent, setAbsent] = useState(0);
   const [dayOfWork, setDayOfWork] = useState(0);
   const [alertList, setAlertList] = useState([]);
+  const [temp, setTemp] = useState(0);
 
   const dateObject = moment(date);
 
@@ -63,7 +64,8 @@ const ManageInfo = () => {
       const timeQuery = query(
         userAttendanceRecordRef,
         where("time", ">=", startOfCurrentMonth),
-        where("time", "<=", endOfCurrentMonth)
+        where("time", "<=", endOfCurrentMonth),
+        orderBy("time", "desc")
       );
 
       const querySnapshot = await getDocs(timeQuery);
@@ -80,14 +82,13 @@ const ManageInfo = () => {
       if (late > 2 || absent > 2) {
         let content = late > absent ? 1 : 0;
         const alerts = [];
-        
+
         if (day > 0) {
           const numberOfAlerts = Math.max(
             Math.floor(late / 3),
             Math.floor(absent / 3)
           );
 
-  
           for (let i = 0; i < numberOfAlerts; i++) {
             alerts.push({
               content,
@@ -95,10 +96,10 @@ const ManageInfo = () => {
             });
           }
         }
-  
+
         setAlertList(alerts);
       }
-    } catch (error) { }
+    } catch (error) {}
   }
 
   const handleShowModal = () => {
@@ -108,12 +109,29 @@ const ManageInfo = () => {
   //Lấy danh sách điểm danh của cá nhân
   useEffect(() => {
     getAttendanceRecord(dateObject.month() + 1, date.getFullYear());
-  }, [ischeck, date]);
+  }, [ischeck, date, temp]);
 
   useEffect(() => {
     let day = countLateAndAbsentAndtime();
     getAlert(dateObject.month() + 1, date.getFullYear(), day);
-  }, [attendanceRecord, ischeck, date]);
+  }, [attendanceRecord, ischeck, date, temp]);
+
+  useEffect(() => {
+    try {
+      const recordRef = collection(db, `User/${user.uid}/AttendanceRecord`);
+      let count = attendanceRecord.length
+      const unsubscribe = onSnapshot(recordRef, (snapshot) => {
+        count += 1
+        setTemp(count);
+      });
+
+      return () => {
+        unsubscribe();
+      };
+    } catch (error) {
+      console.log(error);
+    }
+  }, []);
 
   const countLateAndAbsentAndtime = () => {
     try {
@@ -181,11 +199,11 @@ const ManageInfo = () => {
       setAvgTime(formattedAvgTime);
       setLate(totalLate);
 
-      let temp = 0
+      let temp = 0;
       if (attendanceRecord.length > 0) {
-        temp = totalAbsent < 0 ? 0 : totalAbsent
+        temp = totalAbsent < 0 ? 0 : totalAbsent;
       }
-      
+
       setAbsent(temp);
 
       return totalLate + totaOntime;
