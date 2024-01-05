@@ -462,7 +462,6 @@ const Dashboard = () => {
             (snapshot) => {
               count += 1;
               setTemp(count);
-              console.log("abc");
             }
           );
 
