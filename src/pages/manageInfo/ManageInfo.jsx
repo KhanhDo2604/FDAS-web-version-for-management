@@ -16,6 +16,7 @@ import {
   query,
   where,
   orderBy,
+  Timestamp,
 } from "firebase/firestore";
 import { db } from "../../firebase";
 
@@ -63,77 +64,26 @@ const ManageInfo = () => {
 
       const timeQuery = query(
         userAttendanceRecordRef,
-        where("time", ">=", startOfCurrentMonth),
-        where("time", "<=", endOfCurrentMonth),
+        where("time", ">=", Timestamp.fromDate(startOfCurrentMonth)),
+        where("time", "<=", Timestamp.fromDate(endOfCurrentMonth)),
         orderBy("time", "desc")
       );
 
       const querySnapshot = await getDocs(timeQuery);
       const records = querySnapshot.docs.map((doc) => doc.data());
 
-      setAttendanceRecord(records);
+      setAttendanceRecord((_) => records);
+      countLateAndAbsentAndtime(records);
     } catch (error) {
       console.log(error);
     }
-  }
-
-  function getAlert(month, year, day) {
-    try {
-      if (late > 2 || absent > 2) {
-        let content = late > absent ? 1 : 0;
-        const alerts = [];
-
-        if (day > 0) {
-          const numberOfAlerts = Math.max(
-            Math.floor(late / 3),
-            Math.floor(absent / 3)
-          );
-
-          for (let i = 0; i < numberOfAlerts; i++) {
-            alerts.push({
-              content,
-              time: new Date(year, month),
-            });
-          }
-        }
-
-        setAlertList(alerts);
-      }
-    } catch (error) {}
   }
 
   const handleShowModal = () => {
     setShowModal(true);
   };
 
-  //Lấy danh sách điểm danh của cá nhân
-  useEffect(() => {
-    getAttendanceRecord(dateObject.month() + 1, date.getFullYear());
-  }, [ischeck, date, temp]);
-
-  useEffect(() => {
-    let day = countLateAndAbsentAndtime();
-    getAlert(dateObject.month() + 1, date.getFullYear(), day);
-  }, [attendanceRecord, ischeck, date, temp]);
-
-  useEffect(() => {
-    try {
-      const recordRef = collection(db, `User/${user.uid}/AttendanceRecord`);
-      let count = attendanceRecord.length
-      const unsubscribe = onSnapshot(recordRef, (snapshot) => {
-        count += 1
-        setTemp(count);
-      });
-
-      return () => {
-        unsubscribe();
-      };
-    } catch (error) {
-      console.log(error);
-    }
-  }, []);
-
-  const countLateAndAbsentAndtime = () => {
+  const countLateAndAbsentAndtime = (records) => {
     try {
       let totalLate = 0;
       let totaOntime = 0;
@@ -141,7 +91,7 @@ const ManageInfo = () => {
       let firstDayOfMonth;
       let lastDayOfMonth;
 
-      attendanceRecord.forEach((record) => {
+      records.forEach((record) => {
         //Lấy tổng số ngày đi làm (có mặt tại cty)
         // Trường hợp late
         if (record.status === 2) {
@@ -156,7 +106,7 @@ const ManageInfo = () => {
           record.time.toDate().getMinutes();
       });
 
-      const recordCount = attendanceRecord.length;
+      const recordCount = records.length;
       const avgMinutes = recordCount > 0 ? totalMinutes / recordCount : 0;
 
       // Chuyển đổi thời gian trung bình thành giờ và phút
@@ -200,17 +150,59 @@ const ManageInfo = () => {
       setLate(totalLate);
 
       let temp = 0;
-      if (attendanceRecord.length > 0) {
+      if (records.length > 0) {
         temp = totalAbsent < 0 ? 0 : totalAbsent;
       }
 
       setAbsent(temp);
+
+      const alerts = [];
+      if (totalLate > 3 || temp > 3) {
+        let content = totalLate > temp ? 1 : 0;
+
+        if (totalLate + totaOntime > 0) {
+          const numberOfAlerts = Math.max(
+            Math.floor(totalLate / 3),
+            Math.floor(temp / 3)
+          );
+
+          for (let i = 0; i < numberOfAlerts; i++) {
+            alerts.push({
+              content,
+              time: new Date(date.getFullYear(), dateObject.month() + 1),
+            });
+          }
+        }
+      }
+      setAlertList(alerts);
 
       return totalLate + totaOntime;
     } catch (error) {
       console.log(error);
     }
   };
+
+  //Lấy danh sách điểm danh của cá nhân
+  useEffect(() => {
+    getAttendanceRecord(dateObject.month() + 1, date.getFullYear());
+  }, [ischeck, date, temp]);
+
+  useEffect(() => {
+    try {
+      const recordRef = collection(db, `User/${user.uid}/AttendanceRecord`);
+      let count = attendanceRecord.length;
+      const unsubscribe = onSnapshot(recordRef, (snapshot) => {
+        count += 1;
+        setTemp(count);
+      });
+
+      return () => {
+        unsubscribe();
+      };
+    } catch (error) {
+      console.log(error);
+    }
+  }, []);
 
   const formatDate = (timestamp) => {
     let date;
