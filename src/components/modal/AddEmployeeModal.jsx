@@ -21,7 +21,7 @@ const AddEmployeeModal = ({ setShowModal, password, getAllData }) => {
   const imageRef = useRef();
   const form = useRef();
 
-  const { user } = UserAuth()
+  const { user, setUser } = UserAuth()
 
   const [dateOfBirth, setDateOfBirth] = useState(null);
 
@@ -87,6 +87,7 @@ const AddEmployeeModal = ({ setShowModal, password, getAllData }) => {
     const serviceId = "service_86f8psq";
     const templateId = "template_mk2rho9";
     const publicKey = "BtDf-B_O7lUY_1xB4";
+    const currentUser = user
 
     await createUserWithEmailAndPassword(auth, data.email, password);
 
@@ -124,6 +125,8 @@ const AddEmployeeModal = ({ setShowModal, password, getAllData }) => {
     setShowModal(false);
 
     getAllData();
+
+    setUser(currentUser)
 
     toast.success("Add staff is success")
   };
