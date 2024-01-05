@@ -66,13 +66,13 @@ const PaginatedTable = ({
       status: userStatus === 1 ? 0 : 1,
     })
       .then(() => {
-        console.log("111 cái này fetch lại data nè");
+        setDropdownVisible(false)
       })
       .catch((error) => console.log(error));
   };
 
   //Thay đổi mặt để nhận dạng
-  const handleChangeFace = () => {};
+  const handleChangeFace = () => { };
 
   // EXPORT DATA TO EXCEL
   const handleOnExport = async () => {
@@ -327,12 +327,12 @@ const PaginatedTable = ({
               let deduction =
                 layout === 1 &&
                 value.salary *
-                  ((countAttendanceRecord[value.uid]?.absent *
-                    company.absent_rate) /
-                    100 +
-                    (countAttendanceRecord[value.uid]?.late *
-                      company.late_rate) /
-                      100);
+                ((countAttendanceRecord[value.uid]?.absent *
+                  company.absent_rate) /
+                  100 +
+                  (countAttendanceRecord[value.uid]?.late *
+                    company.late_rate) /
+                  100);
 
               let formattedDate = "------";
               let formattedTime = "------";
@@ -478,10 +478,10 @@ const PaginatedTable = ({
                       >
                         <p
                           style={{
-                            color: value.status !== 1 ? "#5DA969" : "#E4644B",
+                            color: value.status === 0 ? "#5DA969" : "#E4644B",
                           }}
                         >
-                          {value.status !== 1 ? "Active" : "Deactive"}
+                          {value.status === 0 ? "Active" : "Deactive"}
                         </p>
                         <div
                           style={{
@@ -503,7 +503,6 @@ const PaginatedTable = ({
                                 margin: "0",
                                 position: "absolute",
                                 top: "calc(100% + 8px)",
-                                left: value.status !== 1 ? "-50px" : "-140px",
                                 backgroundColor: "#fff",
                                 border: "1px solid #ccc",
                                 borderRadius: "8px",
@@ -522,7 +521,7 @@ const PaginatedTable = ({
                                   transition: "background-color 0.3s",
                                 }}
                               >
-                                {value.status !== 1 ? "Active" : "Deactive"}
+                                {value.status === 0 ? "Deactive" : "Active"}
                               </li>
                             </ul>
                           )}
@@ -563,17 +562,17 @@ const PaginatedTable = ({
                             textAlign: "center",
                             ...(status === 1
                               ? {
-                                  border: "1px solid #5DA969",
-                                  backgroundColor: "rgba(204, 245, 210, 0.50)",
-                                  color: "#5DA969",
-                                }
+                                border: "1px solid #5DA969",
+                                backgroundColor: "rgba(204, 245, 210, 0.50)",
+                                color: "#5DA969",
+                              }
                               : status === 2
-                              ? {
+                                ? {
                                   border: "1px solid #E4644B",
                                   backgroundColor: "rgba(253, 210, 204, 0.50)",
                                   color: "#E4644B",
                                 }
-                              : {
+                                : {
                                   border: "1px solid #999999",
                                   backgroundColor: "rgba(217, 217, 218, 0.50)",
                                   color: "#999999",
@@ -585,8 +584,8 @@ const PaginatedTable = ({
                           {status === 1
                             ? "On Time"
                             : status === 2
-                            ? "Late"
-                            : "Absent"}
+                              ? "Late"
+                              : "Absent"}
                         </span>
                       </td>
                     </>

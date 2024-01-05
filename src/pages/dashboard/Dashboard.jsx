@@ -20,7 +20,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { getCurrentMonthYear, options } from "../../helpers";
+import { getCurrentMonthYear, isFutureDate, isFutureMonth, options } from "../../helpers";
 import moment from "moment"; // Import moment library
 import { Form } from "antd";
 import { startOfMonth, endOfMonth, addDays } from "date-fns";
@@ -50,12 +50,6 @@ const Dashboard = () => {
     maxAbsent: 0,
     staffNameWithMaxAbsent: null,
   });
-
-  // // Total Late
-  // const totalLate = lateCounts.reduce((total, count) => total + count, 0);
-
-  // // Total Absent
-  // const totalAbsent = absentCounts.reduce((total, count) => total + count, 0);
 
   const { currentDay, currentMonth, currentYear } = getCurrentMonthYear();
 
@@ -196,15 +190,53 @@ const Dashboard = () => {
 
   // tháng năm
   const handleDateChange = (value) => {
-    setDate(value ? value.toDate() : new Date());
-    setIsCheck(true);
+    const selectedDate = value ? value.toDate() : new Date();
+    if (isFutureMonth(selectedDate)) {
+      setIsCheck(false);
+      setDate(selectedDate);
+      setAttendanceRecord([]);
+      setCountAttendanceRecord([]);
+      setLateCounts([]);
+      setListMember([]);
+      setAbsentCounts([]);
+      setOnTimeCounts([]);
+      setAttendanceInfo({
+        maxLate: 0,
+        staffNameWithMaxLate: null,
+        maxAbsent: 0,
+        staffNameWithMaxAbsent: null,
+      });
+    } else {
+      setDate(selectedDate);
+      setIsCheck(true);
+    }
   };
 
   // ngày
   const handleDayChange = (value) => {
-    setDay(value ? value.toDate() : new Date());
-    setIsCheck(true);
+    const selectedDay = value ? value.toDate() : new Date();
+
+    if (isFutureDate(selectedDay)) {
+      setIsCheck(false);
+      setDay(selectedDay);
+      setAttendanceRecord([]);
+      setCountAttendanceRecord([]);
+      setLateCounts([]);
+      setListMember([]);
+      setAbsentCounts([]);
+      setOnTimeCounts([]);
+      setAttendanceInfo({
+        maxLate: 0,
+        staffNameWithMaxLate: null,
+        maxAbsent: 0,
+        staffNameWithMaxAbsent: null,
+      });
+    } else {
+      setDay(selectedDay);
+      setIsCheck(true);
+    }
   };
+
 
   const countWorkDay = () => {
     let workingDaysCount = 0;

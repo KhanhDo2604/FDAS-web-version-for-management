@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 
 const Login = () => {
   const [email, setEmail] = useState("");
-  const { logIn } = UserAuth();
+  const { logIn, user } = UserAuth();
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
@@ -126,13 +126,16 @@ const Login = () => {
               }}
               onClick={(e) => {
                 e.preventDefault();
-                logIn(email, password).then((user) => {
-                  if (user === "staff") {
+                logIn(email, password).then((userLogged) => {
+                  console.log(typeof userLogged.status);
+                  if (userLogged.status === 0 && userLogged.role === "staff") {
                     navigate("/manageinfo");
-                    toast("Logged in successfully")
-                  } else {
-                    navigate("/");
-                    toast("Logged in successfully")
+                    toast.success("Logged in successfully")
+                  } else if (userLogged.status === 1 && userLogged.role === "staff") {
+                    toast.error("Loggin is failed")
+                  } else if (userLogged.role === "admin") {
+                    navigate("/")
+                    toast.success("Logged in successfully")
                   }
                 });
               }}
@@ -209,16 +212,3 @@ const Login = () => {
 };
 
 export default Login;
-// if (user === undefined) {
-//   toast.error("Login failed");
-// } else {
-//   if (user["status"] === 0) {
-//     if (user["role"] === "staff") {
-//       navigate("/manageinfo");
-//     } else if (user["role"] === "admin") {
-//       navigate("/");
-//     }
-//   } else {
-//     toast.error("Cannot login");
-//   }
-// }

@@ -38,11 +38,15 @@ export const AuthContextProvider = ({ children }) => {
           const q = query(docRef, where('email', '==', credential.user.email));
           const docsSnap = await getDocs(q);
           if (!docsSnap.empty) {
-            setUser(docsSnap.docs[0].data());
+            const userData = docsSnap.docs[0].data();
+            setUser(userData);
+            return {
+              role: userData['role'],
+              status: userData['status']
+            };
           } else {
             console.log('No such document!');
           }
-          return docsSnap.docs[0].data()['role'];
         }
       })
       .catch((error) => {

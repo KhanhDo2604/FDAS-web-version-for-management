@@ -86,3 +86,26 @@ export const combineLists = (listMembers, countAttendanceRecord, company, layout
     };
   });
 };
+
+export const isFutureMonth = (selectedDate) => {
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+  const currentMonth = currentDate.getMonth() + 1;
+  const selectedYear = selectedDate.getFullYear();
+  const selectedMonth = selectedDate.getMonth() + 1;
+
+  return (
+    selectedYear > currentYear || (selectedYear === currentYear && selectedMonth > currentMonth)
+  );
+};
+
+export const isFutureDate = (selectedDate) => {
+  const currentDate = new Date();
+
+  // set the time to 00:00:00 for both dates to ignore the time part
+  currentDate.setHours(0, 0, 0, 0);
+  selectedDate.setHours(0, 0, 0, 0);
+
+  // Compare the dates
+  return selectedDate > currentDate;
+};
