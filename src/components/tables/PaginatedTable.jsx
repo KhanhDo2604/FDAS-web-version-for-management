@@ -7,7 +7,7 @@ import { FiDownload } from "react-icons/fi";
 import DeductionModal from "../modal/DeductionModal";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase";
-import { combineLists, formatNumber } from "../../helpers";
+import { combineLists, formatNumber, formatNumberWithDot } from "../../helpers";
 
 const PaginatedTable = ({
   listMember,
@@ -429,7 +429,7 @@ const PaginatedTable = ({
                           fontWeight: "bold",
                         }}
                       >
-                        {deduction ? formatNumber(deduction) : 0}
+                        {deduction ? formatNumberWithDot(deduction) : 0}
                       </td>
                       <td
                         style={{
@@ -441,8 +441,8 @@ const PaginatedTable = ({
                         }}
                       >
                         {deduction
-                          ? formatNumber(Math.max(0, value.salary - deduction))
-                          : formatNumber(value.salary)}
+                          ? formatNumberWithDot(Math.max(0, value.salary - deduction))
+                          : formatNumberWithDot(value.salary)}
                       </td>
                     </>
                   ) : layout === 2 ? (

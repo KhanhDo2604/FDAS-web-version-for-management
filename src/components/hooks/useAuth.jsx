@@ -8,6 +8,7 @@ const AuthContext = createContext();
 
 export const AuthContextProvider = ({ children }) => {
   const [user, setUser] = useState({});
+  const isAuthenticated = user !== null;
 
   // logout
   const logOut = () => {
@@ -68,7 +69,7 @@ export const AuthContextProvider = ({ children }) => {
     return () => unsubscribe();
   }, []);
 
-  return <AuthContext.Provider value={{ user, logOut, logIn, setUser }}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={{ user, logOut, logIn, setUser, isAuthenticated }}>{children}</AuthContext.Provider>;
 };
 
 export const UserAuth = () => {

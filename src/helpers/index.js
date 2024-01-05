@@ -67,12 +67,11 @@ export const combineLists = (listMembers, countAttendanceRecord, company, layout
     let total = member.salary;
 
     if (attendanceRecord) {
-      deduction = formatNumber(
+      deduction =
         member.salary *
-          ((attendanceRecord.absent * company.absent_rate) / 100 +
-            (attendanceRecord.late * company.late_rate) / 100)
-      );
-      total = formatNumber(Math.max(0, member.salary - deduction));
+        ((attendanceRecord.absent * company.absent_rate) / 100 +
+          (attendanceRecord.late * company.late_rate) / 100);
+      total = formatNumberWithDot(Math.max(0, member.salary - deduction));
     }
 
     return {
@@ -108,4 +107,8 @@ export const isFutureDate = (selectedDate) => {
 
   // Compare the dates
   return selectedDate > currentDate;
+};
+
+export const formatNumberWithDot = (num) => {
+  return num.toLocaleString('de-DE'); // Định dạng số theo chuẩn của Đức với dấu chấm
 };

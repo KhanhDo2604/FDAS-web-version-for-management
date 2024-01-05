@@ -3,6 +3,7 @@ import './App.css';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import ProtectedRoute from './components/ProtectedRoute';
 
 const ManageInfo = lazy(() => import("./pages/manageInfo/ManageInfo"));
 const Home = lazy(() => import("./pages/home/Home"));
@@ -17,11 +18,14 @@ function App() {
           <Routes>
             <Route path='/login' element={<Login />} />
             <Route path='/' element={
-              <Home />
-            }
-            />
+              <ProtectedRoute>
+                <Home />
+              </ProtectedRoute>
+            } />
             <Route path='/manageinfo' element={
-              <ManageInfo />
+              <ProtectedRoute>
+                <ManageInfo />
+              </ProtectedRoute>
             } />
           </Routes>
         </React.Suspense>

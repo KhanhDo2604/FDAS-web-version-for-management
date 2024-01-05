@@ -13,12 +13,15 @@ import { db, storage } from "../../firebase";
 import { generateRandomID } from "../../helpers";
 import { ref, uploadBytes } from "firebase/storage";
 import axios from "axios";
-import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
+import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { toast } from "react-toastify";
+import { UserAuth } from "../hooks/useAuth";
 
 const AddEmployeeModal = ({ setShowModal, password, getAllData }) => {
   const imageRef = useRef();
   const form = useRef();
+
+  const { user } = UserAuth()
 
   const [dateOfBirth, setDateOfBirth] = useState(null);
 
@@ -121,6 +124,8 @@ const AddEmployeeModal = ({ setShowModal, password, getAllData }) => {
     setShowModal(false);
 
     getAllData();
+
+    toast.success("Add staff is success")
   };
 
   return (
